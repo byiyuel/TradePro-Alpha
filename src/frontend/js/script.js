@@ -33,19 +33,27 @@ class TradeProApp {
         }
         
         // User is authenticated, proceed with app initialization
-        this.connectWebSocket();
         this.showLoadingScreen();
+        this.connectWebSocket();
         
         try {
-            await this.loadInitialData();
-            await this.loadAlarms();
-            await this.loadCompanyNews(this.currentSymbol);
+            // Load data in parallel for faster initialization
+            const [initialDataResult, alarmsResult] = await Promise.allSettled([
+                this.loadInitialData(),
+                this.loadAlarms()
+            ]);
+            
+            // Load news after initial data (non-blocking)
+            this.loadCompanyNews(this.currentSymbol).catch(error => {
+                console.warn('News loading failed:', error);
+            });
+            
             this.startPeriodicUpdates();
             
-            // Hide loading screen after everything is loaded
+            // Hide loading screen faster
             setTimeout(() => {
                 this.hideLoadingScreen();
-            }, 1500); // Minimum 1.5 seconds loading time
+            }, 800); // Reduced from 1.5s to 0.8s
             
         } catch (error) {
             console.error('Error during initialization:', error);
@@ -313,6 +321,7 @@ class TradeProApp {
                     } else if (data.type === 'initial_data') {
                         this.stockData = data.data;
                         this.updateAllDisplays();
+                        console.log('⚡ Initial data received and displayed');
                     } else if (data.type === 'error') {
                         console.error('WebSocket error:', data.message);
                         if (data.message === 'Authentication required' || data.message === 'Invalid authentication token') {
@@ -1478,13 +1487,13 @@ class TradeProApp {
             loadingScreen.style.display = 'flex';
             mainApp.style.display = 'none';
             
-            // Animate progress bar
+            // Faster progress bar animation
             let progress = 0;
             const progressInterval = setInterval(() => {
-                progress += Math.random() * 15;
+                progress += Math.random() * 25; // Increased from 15 to 25
                 if (progress > 90) progress = 90;
                 progressBar.style.width = progress + '%';
-            }, 200);
+            }, 100); // Reduced from 200ms to 100ms
             
             // Store interval for cleanup
             this.progressInterval = progressInterval;

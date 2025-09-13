@@ -274,6 +274,11 @@ const STOCK_NAMES = {
 const stockDataCache = new Map();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+// Pre-cached popular stocks for instant loading
+let preCachedPopularStocks = null;
+let lastPreCacheUpdate = 0;
+const PRE_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
+
 // Get stock data from Yahoo Finance (optimized for specific symbols)
 async function getStockData(symbols = []) {
     const results = {};
@@ -391,6 +396,40 @@ async function getPopularStocks() {
         'BIST:ASELS', 'BIST:TUPRS', 'BIST:THYAO', 'BIST:AKBNK', 'BIST:GARAN'
     ];
     return await getStockData(popularSymbols);
+}
+
+// Get pre-cached popular stocks for instant loading
+async function getPreCachedPopularStocks() {
+    const now = Date.now();
+    
+    // Return cached data if still fresh
+    if (preCachedPopularStocks && (now - lastPreCacheUpdate) < PRE_CACHE_DURATION) {
+        return preCachedPopularStocks;
+    }
+    
+    // Update cache in background
+    updatePreCacheInBackground();
+    
+    // Return cached data even if stale (better than nothing)
+    return preCachedPopularStocks || {};
+}
+
+// Update pre-cache in background
+async function updatePreCacheInBackground() {
+    try {
+        const popularSymbols = [
+            'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META',
+            'BIST:ASELS', 'BIST:TUPRS', 'BIST:THYAO', 'BIST:AKBNK', 'BIST:GARAN'
+        ];
+        
+        const data = await getStockData(popularSymbols);
+        preCachedPopularStocks = data;
+        lastPreCacheUpdate = Date.now();
+        
+        console.log('🔄 Pre-cache updated successfully');
+    } catch (error) {
+        console.error('❌ Failed to update pre-cache:', error);
+    }
 }
 
 // Get reliable stocks (tested and working)
@@ -1287,11 +1326,13 @@ wss.on('connection', (ws, req) => {
         
         console.log('🔌 Authenticated WebSocket connection for user:', user.username);
         
-        getPopularStocks().then(data => {
+        // Send pre-cached data instantly for faster loading
+        getPreCachedPopularStocks().then(data => {
             ws.send(JSON.stringify({
                 type: 'initial_data',
                 data: data
             }));
+            console.log('⚡ Sent pre-cached initial data to user:', user.username);
         }).catch(error => {
             ws.send(JSON.stringify({
                 type: 'error',
@@ -1372,6 +1413,9 @@ async function startServer() {
             console.log(`🌐 Frontend available at http://localhost:${PORT}`);
             console.log(`📈 Supporting ${ALL_SYMBOLS.length} stocks (optimized loading)`);
         });
+        
+        // Initialize pre-cache on startup
+        await updatePreCacheInBackground();
         
         startRealTimeUpdates();
         
