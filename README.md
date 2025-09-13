@@ -14,6 +14,7 @@ Modern, gerçek zamanlı verilerle çalışan profesyonel trading platformu. BIS
 - BIST, NASDAQ ve NYSE hisseleri
 - Çoklu para birimi desteği (TRY, USD)
 
+
 ### 📈 Teknik Analiz
 - RSI (Relative Strength Index)
 - MACD (Moving Average Convergence Divergence)
@@ -38,7 +39,7 @@ Modern, gerçek zamanlı verilerle çalışan profesyonel trading platformu. BIS
 - npm 8.0.0 veya üzeri
 - Modern web tarayıcısı
 
-### Hızlı Başlangıç
+### 🖥️ Kurulum
 
 1. **Bağımlılıkları yükleyin:**
    ```bash
@@ -78,16 +79,7 @@ TradePro-Alpha/
 │       └── database/
 │           └── tradepro.db # SQLite database
 ├── scripts/               # Yardımcı scriptler
-│   ├── start-tradepro.bat # Windows başlatma scripti
-│   ├── install-deps.bat   # Windows dependency installer
-│   ├── setup-nodejs.bat   # Node.js setup script
-│   └── setup-git.bat      # Git kurulum scripti
-├── docs/                  # Dokümantasyon
-│   ├── CONTRIBUTING.md    # Katkıda bulunma rehberi
-│   └── LICENSE            # MIT lisansı
-├── .github/               # GitHub konfigürasyonu
-│   ├── ISSUE_TEMPLATE/    # Issue şablonları
-│   └── pull_request_template.md
+│   └── start-tradepro.bat # Windows başlatma scripti
 ├── package.json           # NPM konfigürasyonu
 ├── package-lock.json      # NPM lock file
 ├── .gitignore             # Git ignore file
