@@ -73,22 +73,11 @@ http://localhost:3000
 
 ---
 
-## 🌐 Desteklenen Borsalar
+### 🌍 Desteklenen Borsalar (Canlı Arama ile)
 
-### 🇹🇷 BIST (40 Hisse)
-
-**Örnekler**: ASELS, TUPRS, THYAO, AKBNK, GARAN, ISCTR
-
-### 🇺🇸 NASDAQ (50 Hisse)
-
-**Teknoloji**: AAPL, MSFT, GOOGL, AMZN, TSLA, NVDA
-
-### 🇺🇸 NYSE (50 Hisse)
-
-**Finans & Tüketim**: JPM, BAC, WMT, JNJ, PG, KO
-
-### 🌍 Diğer Borsalar (Canlı Arama ile)
-
+* 🇺🇸 NASDAQ
+* 🇺🇸 NYSE
+* 🇹🇷 BIST
 * 🇨🇦 TSX
 * 🇬🇧 LSE
 * 🇫🇷 EPA
