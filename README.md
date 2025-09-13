@@ -1,208 +1,197 @@
-# TradePro Alpha - Advanced Trading Platform
+# TradePro Alpha
 
-Modern, gerçek zamanlı verilerle çalışan profesyonel trading platformu. Live arama sistemi ile dünya çapında herhangi bir hisseyi arayabilir ve takip edebilirsiniz!
+> **Modern Trading Platform** - Gerçek zamanlı verilerle çalışan profesyonel trading platformu
 
 [![Node.js](https://img.shields.io/badge/Node.js-16.0.0+-green.svg)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Alpha-orange.svg)](https://github.com/yourusername/TradePro-Alpha)
+[![Status](https://img.shields.io/badge/Status-Alpha-orange.svg)](https://github.com/byiyuel/TradePro-Alpha)
 
-## 🚀 Özellikler
+---
 
-### 📊 Gerçek Zamanlı Veriler
-- Yahoo Finance API entegrasyonu
-- WebSocket ile anlık fiyat güncellemeleri
-- BIST, NASDAQ ve NYSE hisseleri
-- Çoklu para birimi desteği (TRY, USD)
+## 🌟 Öne Çıkan Özellikler
 
+- 🔍 **Live Arama**: Dünya çapında herhangi bir hisse arama
+- 📊 **139 Hisse**: BIST, NASDAQ, NYSE'de kapsamlı hisse desteği
+- ⚡ **Gerçek Zamanlı**: WebSocket ile anlık fiyat güncellemeleri
+- 📈 **Teknik Analiz**: RSI, MACD, Bollinger Bands ve daha fazlası
+- 🌍 **9 Borsa**: Global borsa desteği
+- 📱 **Responsive**: Mobil ve desktop uyumlu
 
-### 📈 Teknik Analiz
-- RSI (Relative Strength Index)
-- MACD (Moving Average Convergence Divergence)
-- SMA 20/50 (Simple Moving Average)
-- Bollinger Bands
-- Stochastic Oscillator
-- Otomatik AL/SAT/BEKLE önerileri
+## 🚀 Hızlı Başlangıç
 
-### 🎯 Gelişmiş Özellikler
-- **Live Arama**: Dünya çapında herhangi bir hisse arama
-- **Takip Listesi**: Hisse ekleme/çıkarma sistemi
-- **Hisse Screener**: Tüm borsalarda filtreleme
-- **Grafikler**: Chart.js ile interaktif grafikler
-- **Zaman Dilimi**: 1D, 1H, 1G, 1A grafik görünümleri
-- **Haberler**: Piyasa haberleri
-- **Responsive**: Mobil ve desktop uyumlu
-
-## 🛠️ Kurulum
-
-### Gereksinimler
-- Node.js 16.0.0 veya üzeri
-- npm 8.0.0 veya üzeri
+### 📋 Gereksinimler
+- Node.js 16.0.0+
+- npm 8.0.0+
 - Modern web tarayıcısı
 
-### 🖥️ Kurulum
+### ⚡ Kurulum
+```bash
+# 1. Bağımlılıkları yükleyin
+npm install
 
-1. **Bağımlılıkları yükleyin:**
-   ```bash
-   npm install
-   ```
+# 2. Sunucuyu başlatın
+npm start
 
-2. **Sunucuyu başlatın:**
-   ```bash
-   npm start
-   ```
-   
-   Veya Windows için:
-   ```
-   start-tradepro.bat
-   ```
-
-3. **Tarayıcıda açın:**
-   ```
-   http://localhost:3000
-   ```
-
-## 📁 Proje Yapısı
-
-```
-TradePro-Alpha/
-├── src/                   # Kaynak kodlar
-│   ├── frontend/          # Frontend dosyaları
-│   │   ├── index.html     # Ana HTML dosyası
-│   │   ├── css/
-│   │   │   └── styles.css # CSS stilleri
-│   │   ├── js/
-│   │   │   └── script.js  # Frontend JavaScript
-│   │   └── assets/        # Statik dosyalar
-│   └── backend/           # Backend dosyaları
-│       ├── server.js      # Node.js backend server
-│       ├── api/           # API endpoint'leri
-│       └── database/
-│           └── tradepro.db # SQLite database
-├── scripts/               # Yardımcı scriptler
-│   └── start-tradepro.bat # Windows başlatma scripti
-├── package.json           # NPM konfigürasyonu
-├── package-lock.json      # NPM lock file
-├── .gitignore             # Git ignore file
-└── README.md              # Bu dosya
+# 3. Tarayıcıda açın
+# http://localhost:3000
 ```
 
-## 🔧 API Endpoints
+### 🎯 İlk Adımlar
+1. **Arama**: Header'daki arama kutusuna hisse adı yazın
+2. **Takip**: "+" butonuna tıklayarak hisse ekleyin
+3. **Analiz**: Grafik ve teknik göstergeleri inceleyin
+4. **Takip**: Takip listesinde hisselerinizi yönetin
 
-### REST API
+## 📊 Özellikler
+
+### 🔍 Live Arama Sistemi
+- **Global Arama**: Dünya çapında herhangi bir hisse
+- **9 Borsa Desteği**: BIST, NASDAQ, NYSE, TSX, LSE, EPA, ETR, HKG, TYO
+- **Anlık Sonuçlar**: Yazarken gerçek zamanlı sonuçlar
+- **Cache Sistemi**: 5 dakika cache ile hızlı arama
+
+### 📈 Teknik Analiz
+- **RSI**: Relative Strength Index
+- **MACD**: Moving Average Convergence Divergence
+- **SMA**: Simple Moving Average (20/50)
+- **Bollinger Bands**: Volatilite analizi
+- **Stochastic**: Momentum göstergesi
+- **Otomatik Öneriler**: AL/SAT/BEKLE sinyalleri
+
+### ⚡ Gerçek Zamanlı Veriler
+- **Yahoo Finance API**: Güvenilir veri kaynağı
+- **WebSocket**: 30 saniyede bir güncelleme
+- **Çoklu Para Birimi**: TRY, USD desteği
+- **139 Hisse**: Kapsamlı hisse kütüphanesi
+
+## 🌐 Desteklenen Borsalar
+
+### 🇹🇷 BIST (Borsa İstanbul) - 40 Hisse
+**Popüler Hisseler**: ASELS, TUPRS, THYAO, AKBNK, GARAN, ISCTR, KRDMD, SAHOL, TCELL, VAKBN
+
+### 🇺🇸 NASDAQ - 50 Hisse  
+**Teknoloji**: AAPL, MSFT, GOOGL, AMZN, TSLA, NVDA, META, NFLX, AMD, INTC
+
+### 🇺🇸 NYSE - 50 Hisse
+**Finans & Tüketim**: JPM, BAC, WMT, JNJ, PG, KO, PFE, V, MA, HD
+
+### 🌍 Global Borsalar (Live Arama)
+- **🇨🇦 TSX**: Toronto Borsası
+- **🇬🇧 LSE**: Londra Borsası  
+- **🇫🇷 EPA**: Paris Borsası
+- **🇩🇪 ETR**: Frankfurt Borsası
+- **🇭🇰 HKG**: Hong Kong Borsası
+- **🇯🇵 TYO**: Tokyo Borsası
+- **🇨🇳 SHA/SHE**: Çin borsaları
+
+## 🎨 Kullanım Kılavuzu
+
+### 🔍 Live Arama
+1. **Arama Kutusu**: Header'daki arama kutusuna hisse adı yazın
+2. **Minimum 3 Karakter**: En az 3 karakter girin
+3. **Anlık Sonuçlar**: Yazarken gerçek zamanlı sonuçlar görünür
+4. **Global Arama**: Dünya çapında herhangi bir hisse arayabilirsiniz
+
+### ⭐ Takip Listesi
+1. **Hisse Ekleme**: Sol paneldeki "+" butonuna tıklayın
+2. **Arama**: Live arama ile istediğiniz hisse adını yazın
+3. **Seçim**: Hisseye tıklayarak takip listesine ekleyin
+4. **Çıkarma**: "X" butonuyla listeden çıkarın
+
+### 📈 Grafik & Analiz
+1. **Hisse Seçimi**: Takip listesinden hisse seçin
+2. **Zaman Dilimi**: 1D, 1H, 1G, 1A butonlarını kullanın
+3. **Teknik Analiz**: Sağ panelde göstergeleri inceleyin
+4. **Öneriler**: AL/SAT/BEKLE sinyallerini takip edin
+
+## 🔧 Teknik Detaylar
+
+### Backend
+- **Node.js & Express.js**: Modern web server
+- **WebSocket**: Real-time communication
+- **SQLite**: Kullanıcı verileri için veritabanı
+- **Yahoo Finance API**: Güvenilir veri kaynağı
+- **Cache Sistemi**: 5 dakika server-side cache
+- **Error Handling**: Güvenli hata yönetimi
+
+### Frontend
+- **HTML5, CSS3, JavaScript**: Modern web teknolojileri
+- **Chart.js**: Interaktif grafikler
+- **Responsive Design**: Mobil ve desktop uyumlu
+- **Real-time Search**: 500ms debouncing ile optimize arama
+- **Client-side Cache**: Tarayıcıda arama sonuçları cache
+
+### API Endpoints
 - `GET /api/stocks` - Tüm hisse verileri
-- `GET /api/stocks/:symbol` - Belirli hisse verisi
-- `GET /api/search?q=query` - Hisse arama
+- `GET /api/search?q=query` - Live hisse arama
 - `GET /api/chart/:symbol` - Grafik verisi
-- `GET /api/screener` - Hisse screener
-- `GET /api/news` - Piyasa haberleri
 - `GET /api/health` - Sistem durumu
-
-### WebSocket
-- `ws://localhost:3000` - Gerçek zamanlı veri akışı
-
-## 📊 Desteklenen Borsalar
-
-### BIST (Borsa İstanbul)
-- ASELS, TUPRS, THYAO, AKBNK, GARAN
-- ISCTR, KRDMD, SAHOL, TCELL, VAKBN
-
-### NASDAQ
-- AAPL, MSFT, GOOGL, AMZN, TSLA
-- NVDA, META, NFLX, AMD, INTC
-- CRM, ADBE, PYPL, UBER, ZM
-
-### NYSE
-- JPM, BAC, WMT, JNJ, PG
-- KO, PFE, V, MA, HD
-- DIS, NKE, MCD, IBM, GE
-
-## 🎨 Kullanım
-
-### Takip Listesi
-- Sol paneldeki "+" butonuna tıklayın
-- Arama yaparak hisse bulun
-- Hisseye tıklayarak takip listesine ekleyin
-- "X" butonuyla listeden çıkarın
-
-### Grafik Görüntüleme
-- Takip listesinden hisse seçin
-- Zaman dilimi butonlarını kullanın (1D, 1H, 1G, 1A)
-- Grafik otomatik olarak güncellenir
-
-### Teknik Analiz
-- Sağ panelde teknik göstergeleri görün
-- AL/SAT/BEKLE önerilerini takip edin
-- TradingView benzeri analiz
-
-### Hisse Screener
-- Sağ panelde "Hisse Screener" bölümü
-- Borsa filtresi (Tümü, BIST, ABD)
-- Hacim bazlı sıralama
-
-## 🔄 Güncelleme Sistemi
-
-- **Gerçek Zamanlı**: WebSocket ile 30 saniyede bir
-- **Manuel**: Sayfa yenileme ile
-- **Otomatik**: Bağlantı kesilirse yeniden bağlanma
+- `WebSocket ws://localhost:3000` - Gerçek zamanlı veri akışı
 
 ## 🐛 Sorun Giderme
 
-### Sunucu Başlamıyor
+### ⚠️ Yaygın Sorunlar
+
+| Sorun | Çözüm |
+|-------|-------|
+| **Port 3000 kullanımda** | `taskkill /f /im node.exe` ile Node.js'i kapatın |
+| **Veri gelmiyor** | İnternet bağlantısını ve Yahoo Finance API erişimini kontrol edin |
+| **Grafik yüklenmiyor** | Chart.js CDN erişimini ve tarayıcı konsolunu kontrol edin |
+| **Arama çalışmıyor** | En az 3 karakter girdiğinizden emin olun |
+
+### 🔧 Debug Komutları
 ```bash
 # Port kontrolü
 netstat -an | findstr :3000
 
 # Node.js versiyonu
 node --version
+
+# Bağımlılıkları yeniden yükle
+npm install
 ```
 
-### Veri Gelmiyor
-- İnternet bağlantısını kontrol edin
-- Yahoo Finance API erişimini kontrol edin
-- WebSocket bağlantısını kontrol edin
+## ⚠️ Önemli Notlar
 
-### Grafik Yüklenmiyor
-- Chart.js CDN erişimini kontrol edin
-- Tarayıcı konsolunda hata mesajlarını kontrol edin
-
-## 📝 Notlar
-
-- Yahoo Finance API ücretsiz kullanım limitleri vardır
-- Gerçek trading için ek güvenlik önlemleri gerekir
-- Bu platform eğitim amaçlıdır
+- **Eğitim Amaçlı**: Bu platform eğitim amaçlıdır
+- **Gerçek Trading**: Gerçek trading için profesyonel platformlar kullanın
+- **API Limitleri**: Yahoo Finance API ücretsiz kullanım limitleri vardır
+- **Güvenlik**: Gerçek trading için ek güvenlik önlemleri gerekir
 
 ## 🤝 Katkıda Bulunma
 
-1. Bu repository'yi fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/AmazingFeature`)
-3. Değişikliklerinizi commit yapın (`git commit -m 'Add some AmazingFeature'`)
-4. Branch'inizi push yapın (`git push origin feature/AmazingFeature`)
-5. Pull Request oluşturun
+1. **Fork**: Bu repository'yi fork yapın
+2. **Branch**: Feature branch oluşturun (`git checkout -b feature/AmazingFeature`)
+3. **Commit**: Değişikliklerinizi commit yapın (`git commit -m 'Add some AmazingFeature'`)
+4. **Push**: Branch'inizi push yapın (`git push origin feature/AmazingFeature`)
+5. **PR**: Pull Request oluşturun
 
-### Geliştirme Kurulumu
-
+### 🛠️ Geliştirme Kurulumu
 ```bash
 # Repository'yi klonlayın
-git clone https://github.com/yourusername/TradePro-Alpha.git
+git clone https://github.com/byiyuel/TradePro-Alpha.git
 cd TradePro-Alpha
 
 # Bağımlılıkları yükleyin
 npm install
 
 # Development modunda çalıştırın
-npm run dev
+npm start
 ```
 
-## 📄 Lisans
+## 📞 İletişim & Destek
 
-Bu proje MIT lisansı altında lisanslanmıştır.
-
-## 📞 İletişim
-
-- GitHub: [TradePro-Alpha Repository](https://github.com/byiyuel/TradePro-Alpha)
-- Issues: [GitHub Issues](https://github.com/byiyuel/TradePro-Alpha/issues)
-- Email: baranyucel643@gmail.com
+- **GitHub**: [TradePro-Alpha Repository](https://github.com/byiyuel/TradePro-Alpha)
+- **Issues**: [GitHub Issues](https://github.com/byiyuel/TradePro-Alpha/issues)
+- **Email**: baranyucel643@gmail.com
+- **Lisans**: MIT License
 
 ---
 
-**⚠️ Uyarı**: Bu platform eğitim amaçlıdır. Gerçek trading için profesyonel platformlar kullanın.
+<div align="center">
+
+**🚀 TradePro Alpha - Modern Trading Platform**
+
+*Gerçek zamanlı verilerle profesyonel trading deneyimi*
+
+</div>
