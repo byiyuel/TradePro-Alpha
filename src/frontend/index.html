@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradePro - Advanced Trading Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-container">
+            <div class="loading-logo">
+                <h1><i class="fas fa-chart-line"></i> TradePro</h1>
+                <div class="loading-subtitle">Finansal Piyasa Analizi</div>
+            </div>
+            <div class="loading-text">Veriler yükleniyor...</div>
+            <div class="loading-progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Screen -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <h1><i class="fas fa-chart-line"></i> TradePro</h1>
+                <p class="auth-subtitle">Finansal Piyasa Analizi</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab">Giriş Yap</button>
+                <button class="auth-tab" id="registerTab">Kayıt Ol</button>
+            </div>
+            
+            <!-- Login Form -->
+            <div class="auth-form-container" id="loginFormContainer">
+                <form class="auth-form" id="authLoginForm">
+                    <div class="form-group">
+                        <label for="authLoginEmail">E-posta:</label>
+                        <input type="email" id="authLoginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="authLoginPassword">Şifre:</label>
+                        <input type="password" id="authLoginPassword" required>
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Giriş Yap</button>
+                </form>
+            </div>
+            
+            <!-- Register Form -->
+            <div class="auth-form-container" id="registerFormContainer" style="display: none;">
+                <form class="auth-form" id="authRegisterForm">
+                    <div class="form-group">
+                        <label for="authRegisterUsername">Kullanıcı Adı:</label>
+                        <input type="text" id="authRegisterUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="authRegisterEmail">E-posta:</label>
+                        <input type="email" id="authRegisterEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="authRegisterPassword">Şifre:</label>
+                        <input type="password" id="authRegisterPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="authConfirmPassword">Şifre Tekrar:</label>
+                        <input type="password" id="authConfirmPassword" required>
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Kayıt Ol</button>
+                </form>
+            </div>
+            
+            <div class="auth-footer">
+                <p>TradePro'ya giriş yaparak finansal piyasa analizlerine erişebilirsiniz.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container" id="mainApp" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <h1><i class="fas fa-chart-line"></i> TradePro</h1>
+                </div>
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Hisse ara (örn: Apple, ASELS, Tesla)">
+                    <i class="fas fa-search search-icon"></i>
+                    <div class="search-dropdown"></div>
+                </div>
+                <div class="header-controls">
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <span id="userName">Kullanıcı</span>
+                        <button class="logout-btn" id="logoutBtn">Çıkış</button>
+                    </div>
+                    <button class="theme-toggle" id="themeToggle" title="Tema Değiştir">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="last-update">
+                        <i class="fas fa-sync-alt"></i>
+                        <span id="lastUpdate">Bağlanıyor...</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Panel - Watchlist and News -->
+            <aside class="left-panel">
+                <!-- Watchlist Section -->
+                <div class="watchlist-section">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-star"></i> Takip Listesi</h2>
+                        <button class="add-stock-btn" id="addStockBtn">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="watchlist-container" id="watchlistContainer">
+                        <!-- Dynamic watchlist items will be added here -->
+                    </div>
+                </div>
+                
+                <!-- Company News -->
+                <div class="company-news-section">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-building"></i> Şirket Haberleri</h2>
+                    </div>
+                    <div class="company-news-container" id="companyNewsContainer">
+                        <!-- Dynamic company news items will be added here -->
+                    </div>
+                </div>
+                
+                <!-- Market News -->
+                <div class="news-section">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-newspaper"></i> Piyasa Haberleri</h2>
+                    </div>
+                    <div class="news-container" id="newsContainer">
+                        <!-- Dynamic news items will be added here -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center Panel - Chart and Details -->
+            <section class="center-panel">
+                <div class="stock-details">
+                    <div class="selected-stock">
+                        <div class="stock-symbol-large" id="selectedSymbol">BIST:ASELS</div>
+                        <div class="stock-name-large" id="selectedName">Aselsan A.Ş.</div>
+                        <div class="stock-price-large" id="selectedPrice">₺173.90</div>
+                        <div class="stock-change-large" id="selectedChange">+1.60 (+0.93%)</div>
+                    </div>
+                </div>
+                
+                <div class="chart-controls">
+                    <div class="timeframe-selector">
+                        <button class="timeframe-btn" data-period="1d">1D</button>
+                        <button class="timeframe-btn active" data-period="1wk">1H</button>
+                        <button class="timeframe-btn" data-period="1mo">1G</button>
+                        <button class="timeframe-btn" data-period="1y">1A</button>
+                    </div>
+                    <div class="chart-type-selector">
+                        <button class="chart-type-btn active" data-type="line">Çizgi</button>
+                        <button class="chart-type-btn" data-type="candlestick">Mum</button>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="stockChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Right Panel - Analysis and Screener -->
+            <aside class="right-panel">
+                <!-- Technical Analysis -->
+                <div class="analysis-section">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-chart-bar"></i> Teknik Analiz</h2>
+                    </div>
+                    <div class="indicators-container" id="indicatorsContainer">
+                        <!-- Dynamic indicators will be added here -->
+                    </div>
+                    
+                    <div class="recommendation-section" id="recommendationSection" style="display: none;">
+                        <div class="panel-header">
+                            <h3>TradingView Önerisi</h3>
+                        </div>
+                        <div class="recommendation-value" id="recommendationValue">BEKLE</div>
+                    </div>
+                </div>
+
+                <!-- Alarm System -->
+                <div class="alarm-section">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-bell"></i> Alarmlar</h2>
+                        <button class="add-alarm-btn" id="addAlarmBtn">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="alarm-container" id="alarmContainer">
+                        <!-- Dynamic alarms will be added here -->
+                    </div>
+                </div>
+
+                <!-- Stock Screener -->
+                <div class="screener-section">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-filter"></i> Hisse Screener</h2>
+                        <button class="screener-toggle" id="screenerToggle">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="screener-filters" id="screenerFilters">
+                        <div class="filter-row">
+                            <select class="screener-filter" id="screenerExchange">
+                                <option value="all">Tüm Borsalar</option>
+                                <option value="bist">BIST</option>
+                                <option value="us">ABD</option>
+                            </select>
+                            <select class="screener-filter" id="screenerSort">
+                                <option value="volume">Hacim</option>
+                                <option value="change">Değişim</option>
+                                <option value="price">Fiyat</option>
+                                <option value="rsi">RSI</option>
+                                <option value="name">İsim</option>
+                            </select>
+                        </div>
+                        <div class="filter-row">
+                            <input type="number" class="filter-input" id="minPrice" placeholder="Min Fiyat">
+                            <input type="number" class="filter-input" id="maxPrice" placeholder="Max Fiyat">
+                        </div>
+                        <div class="filter-row">
+                            <input type="number" class="filter-input" id="minVolume" placeholder="Min Hacim">
+                            <select class="screener-filter" id="screenerRecommendation">
+                                <option value="all">Tüm Öneriler</option>
+                                <option value="AL">Al</option>
+                                <option value="SAT">Sat</option>
+                                <option value="BEKLE">Bekle</option>
+                            </select>
+                        </div>
+                        <button class="apply-filters-btn" id="applyFiltersBtn">Filtreleri Uygula</button>
+                    </div>
+                    <div class="screener-container" id="screenerContainer">
+                        <!-- Dynamic screener items will be added here -->
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Add Stock Modal -->
+    <div class="modal" id="addStockModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Hisse Ekle</h3>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="modal-search-input" id="modalSearchInput" placeholder="Hisse ara...">
+                <div class="modal-search-results" id="modalSearchResults">
+                    <!-- Search results will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Add Alarm Modal -->
+    <div class="modal" id="addAlarmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Alarm Ekle</h3>
+                <button class="close-btn" id="closeAlarmModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="alarm-form">
+                    <div class="form-group">
+                        <label>Hisse:</label>
+                        <span id="alarmSymbol">-</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Alarm Türü:</label>
+                        <select id="alarmType">
+                            <option value="price">Fiyat</option>
+                            <option value="rsi">RSI</option>
+                            <option value="macd">MACD</option>
+                            <option value="volume">Hacim</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Koşul:</label>
+                        <select id="alarmCondition">
+                            <option value="above">Üzerinde</option>
+                            <option value="below">Altında</option>
+                            <option value="crosses">Geçer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Değer:</label>
+                        <input type="number" id="alarmValue" step="0.01" placeholder="Örn: 150.50">
+                    </div>
+                    <button class="alarm-submit-btn" id="alarmSubmitBtn">Alarm Ekle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+</html>
