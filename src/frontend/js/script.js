@@ -414,8 +414,8 @@ class TradeProApp {
                 </button>
             `;
             
-            stockItem.addEventListener('click', () => {
-                this.selectStock(symbol);
+            stockItem.addEventListener('click', async () => {
+                await this.selectStock(symbol);
             });
             
             container.appendChild(stockItem);
@@ -433,6 +433,45 @@ class TradeProApp {
         const changeElement = document.getElementById('selectedChange');
         changeElement.textContent = `${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(2)} (${stock.changePercent >= 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%)`;
         changeElement.className = `stock-change-large ${stock.changePercent >= 0 ? 'positive' : 'negative'}`;
+    }
+    
+    showStockLoadingState(symbol) {
+        // Show loading state for selected stock
+        document.getElementById('selectedSymbol').textContent = symbol;
+        document.getElementById('selectedName').textContent = 'Veriler yükleniyor...';
+        document.getElementById('selectedPrice').textContent = '---';
+        document.getElementById('selectedChange').textContent = '---';
+        document.getElementById('selectedChange').className = 'stock-change-large';
+    }
+    
+    showStockErrorState(symbol) {
+        // Show error state for selected stock
+        document.getElementById('selectedSymbol').textContent = symbol;
+        document.getElementById('selectedName').textContent = 'Veri yüklenemedi';
+        document.getElementById('selectedPrice').textContent = '---';
+        document.getElementById('selectedChange').textContent = '---';
+        document.getElementById('selectedChange').className = 'stock-change-large';
+    }
+    
+    async fetchStockData(symbol) {
+        const headers = {};
+        if (this.token) {
+            headers['Authorization'] = `Bearer ${this.token}`;
+        }
+        
+        const response = await fetch(`${this.apiBaseUrl}/stocks/${symbol}`, { headers });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                this.logout();
+                return;
+            }
+            throw new Error('Failed to fetch stock data');
+        }
+        
+        const stockData = await response.json();
+        this.stockData[symbol] = stockData;
+        return stockData;
     }
     
     updateTechnicalAnalysis() {
@@ -755,8 +794,8 @@ class TradeProApp {
                 </div>
             `;
             
-            item.addEventListener('click', () => {
-                this.selectStock(stock.symbol);
+            item.addEventListener('click', async () => {
+                await this.selectStock(stock.symbol);
             });
             
             container.appendChild(item);
@@ -972,8 +1011,8 @@ class TradeProApp {
                 </span>
             `;
             
-            item.addEventListener('click', () => {
-                this.selectStock(stock.symbol);
+            item.addEventListener('click', async () => {
+                await this.selectStock(stock.symbol);
                 this.hideSearchResults();
                 document.querySelector('.search-input').value = '';
             });
@@ -1225,11 +1264,29 @@ class TradeProApp {
         `;
     }
     
-    selectStock(symbol) {
+    async selectStock(symbol) {
         this.currentSymbol = symbol;
         this.updateWatchlist();
-        this.updateStockDisplay();
-        this.updateTechnicalAnalysis();
+        
+        // Update display immediately if we have data for this symbol
+        if (this.stockData[symbol]) {
+            this.updateStockDisplay();
+            this.updateTechnicalAnalysis();
+        } else {
+            // Show loading state for the selected stock
+            this.showStockLoadingState(symbol);
+            
+            // Try to fetch stock data if not available
+            try {
+                await this.fetchStockData(symbol);
+                this.updateStockDisplay();
+                this.updateTechnicalAnalysis();
+            } catch (error) {
+                console.error('Failed to fetch stock data for', symbol, error);
+                this.showStockErrorState(symbol);
+            }
+        }
+        
         this.loadChartData(symbol);
         this.loadCompanyNews(symbol);
     }
@@ -1246,7 +1303,9 @@ class TradeProApp {
         this.updateWatchlist();
         
         if (symbol === this.currentSymbol && this.watchlist.length > 0) {
-            this.selectStock(this.watchlist[0]);
+            this.selectStock(this.watchlist[0]).catch(error => {
+                console.error('Error selecting stock after removal:', error);
+            });
         }
     }
     
