@@ -98,15 +98,24 @@ const createAlarm = (userId, symbol, type, value, condition) => ({
 // Extended stock symbols
 const STOCK_SYMBOLS = {
     BIST: [
-        'ASELS', 'TUPRS', 'THYAO', 'AKBNK', 'GARAN', 'ISCTR', 'KRDMD', 'SAHOL', 'TCELL', 'VAKBN'
+        'ASELS', 'TUPRS', 'THYAO', 'AKBNK', 'GARAN', 'ISCTR', 'KRDMD', 'SAHOL', 'TCELL', 'VAKBN',
+        'BIMAS', 'EREGL', 'KOZAL', 'PETKM', 'SISE', 'TOASO', 'TUPRS', 'ULKER', 'VESTL', 'YATAS',
+        'ARCLK', 'BAGFS', 'BRISA', 'CCOLA', 'DOAS', 'EKGYO', 'FROTO', 'GUBRF', 'HUNER', 'ISGYO',
+        'KCHOL', 'LOGO', 'MGROS', 'NTHOL', 'OTKAR', 'PGSUS', 'SAHOL', 'SMRTG', 'TKFEN', 'TRCAS'
     ],
     NASDAQ: [
         'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META', 'NFLX', 'AMD', 'INTC',
-        'CRM', 'ADBE', 'PYPL', 'UBER', 'ZM', 'ROKU', 'SQ', 'SHOP', 'TWTR', 'SNAP'
+        'CRM', 'ADBE', 'PYPL', 'UBER', 'ZM', 'ROKU', 'SQ', 'SHOP', 'TWTR', 'SNAP',
+        'ORCL', 'CSCO', 'AVGO', 'TXN', 'QCOM', 'AMAT', 'MU', 'ADI', 'LRCX', 'KLAC',
+        'MRVL', 'SNPS', 'CDNS', 'FTNT', 'CHKP', 'CRWD', 'ZS', 'OKTA', 'PANW',
+        'DOCU', 'TEAM', 'WDAY', 'SNOW', 'DDOG', 'NET', 'ESTC', 'MDB', 'SPLK', 'NOW'
     ],
     NYSE: [
         'JPM', 'BAC', 'WMT', 'JNJ', 'PG', 'KO', 'PFE', 'V', 'MA', 'HD',
-        'DIS', 'NKE', 'MCD', 'IBM', 'GE', 'CAT', 'BA', 'XOM', 'CVX', 'COP'
+        'DIS', 'NKE', 'MCD', 'IBM', 'GE', 'CAT', 'BA', 'XOM', 'CVX', 'COP',
+        'ABBV', 'ABT', 'ACN', 'ADP', 'AEP', 'AIG', 'ALL', 'AMGN', 'AMT', 'ANTM',
+        'AXP', 'BAX', 'BDX', 'BIIB', 'BK', 'BLK', 'BMY', 'BRK-B', 'BSX', 'C',
+        'CB', 'CCI', 'CL', 'CMCSA', 'COF', 'COP', 'COST', 'CSX', 'CTAS', 'CTSH'
     ]
 };
 
@@ -129,6 +138,34 @@ const STOCK_NAMES = {
     'BIST:SAHOL': 'Sabancı Holding',
     'BIST:TCELL': 'Turkcell',
     'BIST:VAKBN': 'VakıfBank',
+    'BIST:BIMAS': 'BİM Birleşik Mağazalar',
+    'BIST:EREGL': 'Ereğli Demir ve Çelik',
+    'BIST:KOZAL': 'Koza Altın',
+    'BIST:PETKM': 'Petkim Petrokimya',
+    'BIST:SISE': 'Şişe ve Cam',
+    'BIST:TOASO': 'Tofaş',
+    'BIST:ULKER': 'Ülker Bisküvi',
+    'BIST:VESTL': 'Vestel',
+    'BIST:YATAS': 'Yataş Yatak',
+    'BIST:ARCLK': 'Arçelik',
+    'BIST:BAGFS': 'Bağfas',
+    'BIST:BRISA': 'Bridgestone',
+    'BIST:CCOLA': 'Coca-Cola İçecek',
+    'BIST:DOAS': 'Doğuş Otomotiv',
+    'BIST:EKGYO': 'Emlak Konut',
+    'BIST:FROTO': 'Ford Otosan',
+    'BIST:GUBRF': 'Gübre Fabrikaları',
+    'BIST:HUNER': 'Hünkar',
+    'BIST:ISGYO': 'İş Gayrimenkul',
+    'BIST:KCHOL': 'Koç Holding',
+    'BIST:LOGO': 'Logo Yazılım',
+    'BIST:MGROS': 'Migros',
+    'BIST:NTHOL': 'Net Holding',
+    'BIST:OTKAR': 'Otokar',
+    'BIST:PGSUS': 'Pegasus Hava',
+    'BIST:SMRTG': 'Smart Güneş',
+    'BIST:TKFEN': 'Tekfen Holding',
+    'BIST:TRCAS': 'Türk Telekom',
     
     // NASDAQ
     'AAPL': 'Apple Inc.',
@@ -151,6 +188,35 @@ const STOCK_NAMES = {
     'SHOP': 'Shopify Inc.',
     'TWTR': 'Twitter Inc.',
     'SNAP': 'Snap Inc.',
+    'ORCL': 'Oracle Corporation',
+    'CSCO': 'Cisco Systems Inc.',
+    'AVGO': 'Broadcom Inc.',
+    'TXN': 'Texas Instruments',
+    'QCOM': 'Qualcomm Inc.',
+    'AMAT': 'Applied Materials',
+    'MU': 'Micron Technology',
+    'ADI': 'Analog Devices',
+    'LRCX': 'Lam Research',
+    'KLAC': 'KLA Corporation',
+    'MRVL': 'Marvell Technology',
+    'SNPS': 'Synopsys Inc.',
+    'CDNS': 'Cadence Design',
+    'FTNT': 'Fortinet Inc.',
+    'CHKP': 'Check Point Software',
+    'CRWD': 'CrowdStrike Holdings',
+    'ZS': 'Zscaler Inc.',
+    'OKTA': 'Okta Inc.',
+    'PANW': 'Palo Alto Networks',
+    'DOCU': 'DocuSign Inc.',
+    'TEAM': 'Atlassian Corporation',
+    'WDAY': 'Workday Inc.',
+    'SNOW': 'Snowflake Inc.',
+    'DDOG': 'Datadog Inc.',
+    'NET': 'Cloudflare Inc.',
+    'ESTC': 'Elastic N.V.',
+    'MDB': 'MongoDB Inc.',
+    'SPLK': 'Splunk Inc.',
+    'NOW': 'ServiceNow Inc.',
     
     // NYSE
     'JPM': 'JPMorgan Chase',
@@ -172,35 +238,99 @@ const STOCK_NAMES = {
     'BA': 'Boeing Company',
     'XOM': 'Exxon Mobil Corporation',
     'CVX': 'Chevron Corporation',
-    'COP': 'ConocoPhillips'
+    'COP': 'ConocoPhillips',
+    'ABBV': 'AbbVie Inc.',
+    'ABT': 'Abbott Laboratories',
+    'ACN': 'Accenture plc',
+    'ADP': 'Automatic Data Processing',
+    'AEP': 'American Electric Power',
+    'AIG': 'American International Group',
+    'ALL': 'Allstate Corporation',
+    'AMGN': 'Amgen Inc.',
+    'AMT': 'American Tower Corporation',
+    'ANTM': 'Anthem Inc.',
+    'AXP': 'American Express Company',
+    'BAX': 'Baxter International',
+    'BDX': 'Becton Dickinson',
+    'BIIB': 'Biogen Inc.',
+    'BK': 'Bank of New York Mellon',
+    'BLK': 'BlackRock Inc.',
+    'BMY': 'Bristol Myers Squibb',
+    'BRK-B': 'Berkshire Hathaway',
+    'BSX': 'Boston Scientific',
+    'C': 'Citigroup Inc.',
+    'CB': 'Chubb Limited',
+    'CCI': 'Crown Castle International',
+    'CL': 'Colgate-Palmolive Company',
+    'CMCSA': 'Comcast Corporation',
+    'COF': 'Capital One Financial',
+    'COST': 'Costco Wholesale',
+    'CSX': 'CSX Corporation',
+    'CTAS': 'Cintas Corporation',
+    'CTSH': 'Cognizant Technology'
 };
 
-// Get stock data from Yahoo Finance
-async function getStockData(symbols = ALL_SYMBOLS) {
+// Cache for stock data
+const stockDataCache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Get stock data from Yahoo Finance (optimized for specific symbols)
+async function getStockData(symbols = []) {
     const results = {};
+    const symbolsToFetch = [];
     
+    // Check cache first
     for (const symbol of symbols) {
+        const cached = stockDataCache.get(symbol);
+        if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+            results[symbol] = cached.data;
+        } else {
+            symbolsToFetch.push(symbol);
+        }
+    }
+    
+    // Fetch only uncached symbols
+    for (const symbol of symbolsToFetch) {
         try {
             let symbolKey, url;
             
+            // Handle different symbol formats
             if (symbol.startsWith('BIST:')) {
                 symbolKey = symbol.replace('BIST:', '');
                 url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbolKey}.IS?interval=1d&range=1mo`;
+            } else if (symbol.includes('.')) {
+                // Handle symbols with exchange suffixes (e.g., AAPL, TSLA)
+                symbolKey = symbol;
+                url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbolKey}?interval=1d&range=1mo`;
             } else {
+                // Default to US market
                 symbolKey = symbol;
                 url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbolKey}?interval=1d&range=1mo`;
             }
             
             const response = await fetch(url);
-            if (!response.ok) continue;
+            if (!response.ok) {
+                results[symbol] = getFallbackData(symbol);
+                continue;
+            }
             
             const data = await response.json();
-            if (!data.chart?.result?.[0]) continue;
+            if (!data.chart?.result?.[0]) {
+                results[symbol] = getFallbackData(symbol);
+                continue;
+            }
             
             const result = data.chart.result[0];
             const meta = result.meta;
             const quotes = result.indicators.quote[0];
             const timestamps = result.timestamp;
+            
+            // Check if we have valid data
+            if (!quotes || !quotes.close || !Array.isArray(quotes.close) || !timestamps || !Array.isArray(timestamps)) {
+                // Silent fallback for problematic stocks
+                results[symbol] = getFallbackData(symbol);
+                continue;
+            }
             
             const latestIndex = timestamps.length - 1;
             const currentPrice = quotes.close[latestIndex] || meta.previousClose || 0;
@@ -221,7 +351,7 @@ async function getStockData(symbols = ALL_SYMBOLS) {
             
             const indicators = calculateTechnicalIndicators(quotes.close, currentPrice);
             
-            results[symbol] = {
+            const stockData = {
                 symbol: symbol,
                 name: STOCK_NAMES[symbol] || symbol,
                 price: currentPrice,
@@ -232,18 +362,71 @@ async function getStockData(symbols = ALL_SYMBOLS) {
                 low: quotes.low[latestIndex] || currentPrice,
                 open: quotes.open[latestIndex] || currentPrice,
                 currency: symbol.startsWith('BIST:') ? 'TRY' : 'USD',
-                exchange: symbol.startsWith('BIST:') ? 'BIST' : (STOCK_SYMBOLS.NASDAQ.includes(symbol) ? 'NASDAQ' : 'NYSE'),
+                exchange: getExchangeFromSymbol(symbol),
                 ...indicators,
                 lastUpdate: new Date().toISOString()
             };
             
+            results[symbol] = stockData;
+            
+            // Cache the result
+            stockDataCache.set(symbol, {
+                data: stockData,
+                timestamp: Date.now()
+            });
+            
         } catch (error) {
-            console.error(`Error fetching ${symbol}:`, error.message);
+            // Silent error handling for problematic stocks
             results[symbol] = getFallbackData(symbol);
         }
     }
     
     return results;
+}
+
+// Get popular stocks (most searched/common ones)
+async function getPopularStocks() {
+    const popularSymbols = [
+        'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META',
+        'BIST:ASELS', 'BIST:TUPRS', 'BIST:THYAO', 'BIST:AKBNK', 'BIST:GARAN'
+    ];
+    return await getStockData(popularSymbols);
+}
+
+// Get reliable stocks (tested and working)
+async function getReliableStocks() {
+    const reliableSymbols = [
+        'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META', 'NFLX',
+        'BIST:ASELS', 'BIST:TUPRS', 'BIST:THYAO', 'BIST:AKBNK', 'BIST:GARAN',
+        'BIST:TCELL', 'BIST:ISCTR', 'BIST:KRDMD', 'BIST:SAHOL'
+    ];
+    return await getStockData(reliableSymbols);
+}
+
+// Determine exchange from symbol
+function getExchangeFromSymbol(symbol) {
+    if (symbol.startsWith('BIST:')) {
+        return 'BIST';
+    } else if (symbol.includes('.TO')) {
+        return 'TSX';
+    } else if (symbol.includes('.L')) {
+        return 'LSE';
+    } else if (symbol.includes('.PA')) {
+        return 'EPA';
+    } else if (symbol.includes('.DE')) {
+        return 'ETR';
+    } else if (symbol.includes('.HK')) {
+        return 'HKG';
+    } else if (symbol.includes('.T')) {
+        return 'TYO';
+    } else if (symbol.includes('.SS')) {
+        return 'SHA';
+    } else if (symbol.includes('.SZ')) {
+        return 'SHE';
+    } else {
+        // Default to US exchanges
+        return 'NASDAQ'; // Most symbols are NASDAQ or NYSE, default to NASDAQ
+    }
 }
 
 // Calculate technical indicators
@@ -610,7 +793,8 @@ app.delete('/api/user/watchlist/:symbol', authenticateToken, (req, res) => {
 
 app.get('/api/stocks', authenticateToken, async (req, res) => {
     try {
-        const stockData = await getStockData();
+        // Only return popular stocks instead of all stocks
+        const stockData = await getPopularStocks();
         res.json(stockData);
     } catch (error) {
         console.error('Error in /api/stocks:', error);
@@ -629,25 +813,84 @@ app.get('/api/stocks/:symbol', authenticateToken, async (req, res) => {
     }
 });
 
-app.get('/api/search', authenticateToken, async (req, res) => {
+// Live search API - searches any stock symbol
+app.get('/api/search', async (req, res) => {
     try {
         const query = req.query.q;
         if (!query || query.length < 2) {
             return res.json([]);
         }
         
-        const allStocks = await getStockData(ALL_SYMBOLS);
-        const searchResults = Object.values(allStocks).filter(stock => 
-            stock.symbol.toLowerCase().includes(query.toLowerCase()) ||
-            stock.name.toLowerCase().includes(query.toLowerCase())
-        );
-        
-        res.json(searchResults.slice(0, 15));
+        // Use Yahoo Finance search API for live search
+        const searchResults = await searchStocksLive(query);
+        res.json(searchResults);
     } catch (error) {
-        console.error('Error in search:', error);
+        console.error('Error in live search:', error);
         res.status(500).json({ error: 'Search failed' });
     }
 });
+
+// Live stock search function
+async function searchStocksLive(query) {
+    try {
+        // Use Yahoo Finance search endpoint
+        const searchUrl = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=25&newsCount=0`;
+        
+        const response = await fetch(searchUrl);
+        if (!response.ok) {
+            throw new Error('Search API failed');
+        }
+        
+        const data = await response.json();
+        const results = [];
+        
+        if (data.quotes && Array.isArray(data.quotes)) {
+            for (const quote of data.quotes) {
+                if (quote.symbol && quote.longname) {
+                    // Try to get current price for each found stock
+                    try {
+                        const stockData = await getStockData([quote.symbol]);
+                        if (stockData[quote.symbol]) {
+                            results.push(stockData[quote.symbol]);
+                        } else {
+                            // If we can't get live data, create a basic result
+                            results.push({
+                                symbol: quote.symbol,
+                                name: quote.longname,
+                                price: quote.regularMarketPrice || 0,
+                                change: 0,
+                                changePercent: 0,
+                                volume: 0,
+                                high: quote.regularMarketDayHigh || 0,
+                                low: quote.regularMarketDayLow || 0,
+                                open: quote.regularMarketOpen || 0,
+                                currency: quote.currency || 'USD',
+                                exchange: quote.exchange || 'UNKNOWN',
+                                rsi: 50,
+                                macd: 'BEKLE',
+                                sma20: 'BEKLE',
+                                sma50: 'BEKLE',
+                                bollinger: 'BEKLE',
+                                stochastic: 'BEKLE',
+                                recommendation: 'BEKLE',
+                                lastUpdate: new Date().toISOString()
+                            });
+                        }
+                    } catch (error) {
+                        // Skip this stock if we can't get data
+                        continue;
+                    }
+                }
+            }
+        }
+        
+        return results.slice(0, 25); // Limit to 25 results
+        
+    } catch (error) {
+        console.error('Live search error:', error);
+        return [];
+    }
+}
 
 app.get('/api/chart/:symbol', authenticateToken, async (req, res) => {
     try {
@@ -1001,7 +1244,9 @@ app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'OK', 
         timestamp: new Date().toISOString(),
-        symbols: ALL_SYMBOLS.length
+        totalSymbols: ALL_SYMBOLS.length,
+        cachedSymbols: stockDataCache.size,
+        popularSymbols: 12
     });
 });
 
@@ -1042,7 +1287,7 @@ wss.on('connection', (ws, req) => {
         
         console.log('🔌 Authenticated WebSocket connection for user:', user.username);
         
-        getStockData().then(data => {
+        getPopularStocks().then(data => {
             ws.send(JSON.stringify({
                 type: 'initial_data',
                 data: data
@@ -1090,15 +1335,16 @@ function startRealTimeUpdates() {
     
     updateInterval = setInterval(async () => {
         try {
-            const stockData = await getStockData();
+            // Only update popular stocks for real-time updates
+            const stockData = await getPopularStocks();
             broadcastUpdate(stockData);
-            console.log('📊 Broadcasted real-time update');
+            console.log('📊 Broadcasted real-time update (popular stocks only)');
         } catch (error) {
             console.error('Error in real-time update:', error);
         }
     }, 30000);
     
-    console.log('🔄 Started real-time updates');
+    console.log('🔄 Started real-time updates (optimized)');
 }
 
 function stopRealTimeUpdates() {
@@ -1124,7 +1370,7 @@ async function startServer() {
             console.log(`🚀 TradePro Server running on http://localhost:${PORT}`);
             console.log(`📊 WebSocket server running on ws://localhost:${PORT}`);
             console.log(`🌐 Frontend available at http://localhost:${PORT}`);
-            console.log(`📈 Supporting ${ALL_SYMBOLS.length} stocks across BIST, NASDAQ, and NYSE`);
+            console.log(`📈 Supporting ${ALL_SYMBOLS.length} stocks (optimized loading)`);
         });
         
         startRealTimeUpdates();

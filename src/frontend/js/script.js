@@ -15,6 +15,7 @@ class TradeProApp {
         this.chartType = 'line';
         this.user = null;
         this.token = null;
+        this.searchCache = new Map(); // Cache for search results
         
         this.init();
     }
@@ -94,10 +95,51 @@ class TradeProApp {
         const searchInput = document.querySelector('.search-input');
         const searchDropdown = document.querySelector('.search-dropdown');
         
+        // Optimized real-time search
+        let searchTimeout;
+        let lastSearchQuery = '';
+        
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            // If query is empty, hide results
+            if (query.length === 0) {
+                this.hideSearchResults();
+                lastSearchQuery = '';
+                return;
+            }
+            
+            // Don't search if it's the same query
+            if (query === lastSearchQuery) {
+                return;
+            }
+            
+            // For very short queries, show message
+            if (query.length <= 2) {
+                this.showSearchMessage('En az 3 karakter girin');
+                return;
+            }
+            
+            // Debounce search - wait 500ms after user stops typing for API calls
+            searchTimeout = setTimeout(() => {
+                this.handleSearch(query);
+                lastSearchQuery = query;
+            }, 500);
+        });
+        
+        // Also handle Enter key for immediate search
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                this.handleSearch(e.target.value);
+                const query = e.target.value.trim();
+                if (query.length > 0) {
+                    this.handleSearch(query);
+                }
             }
         });
         
@@ -128,10 +170,50 @@ class TradeProApp {
             addStockModal.style.display = 'none';
         });
         
+        // Optimized real-time modal search
+        let modalSearchTimeout;
+        let lastModalSearchQuery = '';
+        
+        modalSearchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            
+            // Clear previous timeout
+            if (modalSearchTimeout) {
+                clearTimeout(modalSearchTimeout);
+            }
+            
+            // If query is empty, clear results
+            if (query.length === 0) {
+                document.getElementById('modalSearchResults').innerHTML = '';
+                lastModalSearchQuery = '';
+                return;
+            }
+            
+            // Don't search if it's the same query
+            if (query === lastModalSearchQuery) {
+                return;
+            }
+            
+            // For very short queries, show message
+            if (query.length <= 2) {
+                this.showModalSearchMessage('En az 3 karakter girin');
+                return;
+            }
+            
+            // Debounce search - wait 500ms after user stops typing for API calls
+            modalSearchTimeout = setTimeout(() => {
+                this.handleModalSearch(query);
+                lastModalSearchQuery = query;
+            }, 500);
+        });
+        
         modalSearchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                this.handleModalSearch(e.target.value);
+                const query = e.target.value.trim();
+                if (query.length > 0) {
+                    this.handleModalSearch(query);
+                }
             }
         });
         
@@ -803,13 +885,25 @@ class TradeProApp {
             return;
         }
         
+        const trimmedQuery = query.trim();
+        
+        // Check cache first
+        if (this.searchCache.has(trimmedQuery)) {
+            this.searchResults = this.searchCache.get(trimmedQuery);
+            this.showSearchResults();
+            return;
+        }
+        
+        // Show loading state
+        this.showSearchLoading();
+        
         try {
             const headers = {};
             if (this.token) {
                 headers['Authorization'] = `Bearer ${this.token}`;
             }
             
-            const response = await fetch(`${this.apiBaseUrl}/search?q=${encodeURIComponent(query.trim())}`, { headers });
+            const response = await fetch(`${this.apiBaseUrl}/search?q=${encodeURIComponent(trimmedQuery)}`, { headers });
             if (!response.ok) {
                 if (response.status === 401) {
                     this.logout();
@@ -819,11 +913,21 @@ class TradeProApp {
             }
             
             this.searchResults = await response.json();
+            
+            // Cache the results
+            this.searchCache.set(trimmedQuery, this.searchResults);
+            
+            // Limit cache size to prevent memory issues
+            if (this.searchCache.size > 50) {
+                const firstKey = this.searchCache.keys().next().value;
+                this.searchCache.delete(firstKey);
+            }
+            
             this.showSearchResults();
             
         } catch (error) {
             console.error('Search error:', error);
-            this.hideSearchResults();
+            this.showSearchError('Arama sırasında hata oluştu');
         }
     }
     
@@ -831,12 +935,28 @@ class TradeProApp {
         const dropdown = document.querySelector('.search-dropdown');
         dropdown.innerHTML = '';
         
+        if (this.searchResults.length === 0) {
+            dropdown.innerHTML = `
+                <div style="padding: 12px 16px; text-align: center; color: var(--text-secondary);">
+                    <i class="fas fa-search" style="margin-right: 8px;"></i>
+                    Sonuç bulunamadı
+                </div>
+            `;
+            dropdown.style.display = 'block';
+            return;
+        }
+        
         this.searchResults.forEach(stock => {
             const item = document.createElement('div');
             item.className = 'search-result-item';
+            
+            // Highlight matching text
+            const highlightedSymbol = this.highlightText(stock.symbol, document.querySelector('.search-input').value);
+            const highlightedName = this.highlightText(stock.name, document.querySelector('.search-input').value);
+            
             item.innerHTML = `
-                <span class="search-symbol">${stock.symbol}</span>
-                <span class="search-name">${stock.name}</span>
+                <span class="search-symbol">${highlightedSymbol}</span>
+                <span class="search-name">${highlightedName}</span>
                 <span class="search-price">${this.formatPrice(stock.price, stock.currency)}</span>
                 <span class="search-change ${stock.changePercent >= 0 ? 'positive' : 'negative'}">
                     ${stock.changePercent >= 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%
@@ -859,11 +979,133 @@ class TradeProApp {
         document.querySelector('.search-dropdown').style.display = 'none';
     }
     
+    showSearchLoading() {
+        const dropdown = document.querySelector('.search-dropdown');
+        dropdown.innerHTML = `
+            <div style="padding: 12px 16px; text-align: center; color: var(--text-secondary);">
+                <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>
+                Aranıyor...
+            </div>
+        `;
+        dropdown.style.display = 'block';
+    }
+    
+    showSearchError(message) {
+        const dropdown = document.querySelector('.search-dropdown');
+        dropdown.innerHTML = `
+            <div style="padding: 12px 16px; text-align: center; color: var(--error-color);">
+                <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                ${message}
+            </div>
+        `;
+        dropdown.style.display = 'block';
+    }
+    
+    showSearchMessage(message) {
+        const dropdown = document.querySelector('.search-dropdown');
+        dropdown.innerHTML = `
+            <div style="padding: 12px 16px; text-align: center; color: var(--text-secondary);">
+                <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+                ${message}
+            </div>
+        `;
+        dropdown.style.display = 'block';
+    }
+    
+    // Local search for fast results using cached data
+    handleLocalSearch(query) {
+        if (!query || query.trim().length === 0) {
+            this.hideSearchResults();
+            return;
+        }
+        
+        const queryLower = query.toLowerCase();
+        const localResults = [];
+        
+        // Search in cached stock data
+        Object.values(this.stockData).forEach(stock => {
+            if (stock.symbol.toLowerCase().includes(queryLower) || 
+                stock.name.toLowerCase().includes(queryLower)) {
+                localResults.push(stock);
+            }
+        });
+        
+        // Sort by relevance (exact symbol matches first)
+        localResults.sort((a, b) => {
+            const aSymbolMatch = a.symbol.toLowerCase().startsWith(queryLower);
+            const bSymbolMatch = b.symbol.toLowerCase().startsWith(queryLower);
+            
+            if (aSymbolMatch && !bSymbolMatch) return -1;
+            if (!aSymbolMatch && bSymbolMatch) return 1;
+            
+            return a.symbol.localeCompare(b.symbol);
+        });
+        
+        // Limit results to 15 for performance
+        this.searchResults = localResults.slice(0, 15);
+        this.showSearchResults();
+    }
+    
+    // Local search for modal
+    handleModalLocalSearch(query) {
+        if (!query || query.trim().length === 0) {
+            document.getElementById('modalSearchResults').innerHTML = '';
+            return;
+        }
+        
+        const queryLower = query.toLowerCase();
+        const localResults = [];
+        
+        // Search in cached stock data
+        Object.values(this.stockData).forEach(stock => {
+            if (stock.symbol.toLowerCase().includes(queryLower) || 
+                stock.name.toLowerCase().includes(queryLower)) {
+                localResults.push(stock);
+            }
+        });
+        
+        // Sort by relevance (exact symbol matches first)
+        localResults.sort((a, b) => {
+            const aSymbolMatch = a.symbol.toLowerCase().startsWith(queryLower);
+            const bSymbolMatch = b.symbol.toLowerCase().startsWith(queryLower);
+            
+            if (aSymbolMatch && !bSymbolMatch) return -1;
+            if (!aSymbolMatch && bSymbolMatch) return 1;
+            
+            return a.symbol.localeCompare(b.symbol);
+        });
+        
+        // Limit results to 20 for modal
+        this.updateModalSearchResults(localResults.slice(0, 20));
+    }
+    
+    // Highlight matching text in search results
+    highlightText(text, query) {
+        if (!query || query.trim().length === 0) {
+            return text;
+        }
+        
+        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return text.replace(regex, '<mark style="background-color: rgba(0, 212, 255, 0.3); color: inherit; padding: 0;">$1</mark>');
+    }
+    
     async handleModalSearch(query) {
         if (!query || query.trim().length === 0) {
             document.getElementById('modalSearchResults').innerHTML = '';
             return;
         }
+        
+        const trimmedQuery = query.trim();
+        
+        // Check cache first
+        if (this.searchCache.has(trimmedQuery)) {
+            const results = this.searchCache.get(trimmedQuery);
+            this.updateModalSearchResults(results);
+            return;
+        }
+        
+        // Show loading state
+        this.showModalSearchLoading();
         
         try {
             const headers = {};
@@ -871,7 +1113,7 @@ class TradeProApp {
                 headers['Authorization'] = `Bearer ${this.token}`;
             }
             
-            const response = await fetch(`${this.apiBaseUrl}/search?q=${encodeURIComponent(query.trim())}`, { headers });
+            const response = await fetch(`${this.apiBaseUrl}/search?q=${encodeURIComponent(trimmedQuery)}`, { headers });
             if (!response.ok) {
                 if (response.status === 401) {
                     this.logout();
@@ -881,10 +1123,21 @@ class TradeProApp {
             }
             
             const results = await response.json();
+            
+            // Cache the results
+            this.searchCache.set(trimmedQuery, results);
+            
+            // Limit cache size to prevent memory issues
+            if (this.searchCache.size > 50) {
+                const firstKey = this.searchCache.keys().next().value;
+                this.searchCache.delete(firstKey);
+            }
+            
             this.updateModalSearchResults(results);
             
         } catch (error) {
             console.error('Modal search error:', error);
+            this.showModalSearchError('Arama sırasında hata oluştu');
         }
     }
     
@@ -892,13 +1145,28 @@ class TradeProApp {
         const container = document.getElementById('modalSearchResults');
         container.innerHTML = '';
         
+        if (results.length === 0) {
+            container.innerHTML = `
+                <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                    <i class="fas fa-search" style="margin-right: 8px;"></i>
+                    Sonuç bulunamadı
+                </div>
+            `;
+            return;
+        }
+        
         results.forEach(stock => {
             const item = document.createElement('div');
             item.className = 'modal-search-result';
+            
+            // Highlight matching text
+            const highlightedSymbol = this.highlightText(stock.symbol, document.getElementById('modalSearchInput').value);
+            const highlightedName = this.highlightText(stock.name, document.getElementById('modalSearchInput').value);
+            
             item.innerHTML = `
                 <div>
-                    <div style="font-weight: 600; color: #ffffff;">${stock.symbol}</div>
-                    <div style="font-size: 12px; color: #888888;">${stock.name}</div>
+                    <div style="font-weight: 600; color: #ffffff;">${highlightedSymbol}</div>
+                    <div style="font-size: 12px; color: #888888;">${highlightedName}</div>
                 </div>
                 <div style="text-align: right;">
                     <div style="font-weight: 600; color: #ffffff;">${this.formatPrice(stock.price, stock.currency)}</div>
@@ -916,6 +1184,36 @@ class TradeProApp {
             
             container.appendChild(item);
         });
+    }
+    
+    showModalSearchLoading() {
+        const container = document.getElementById('modalSearchResults');
+        container.innerHTML = `
+            <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>
+                Aranıyor...
+            </div>
+        `;
+    }
+    
+    showModalSearchError(message) {
+        const container = document.getElementById('modalSearchResults');
+        container.innerHTML = `
+            <div style="padding: 20px; text-align: center; color: var(--error-color);">
+                <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                ${message}
+            </div>
+        `;
+    }
+    
+    showModalSearchMessage(message) {
+        const container = document.getElementById('modalSearchResults');
+        container.innerHTML = `
+            <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+                ${message}
+            </div>
+        `;
     }
     
     selectStock(symbol) {
