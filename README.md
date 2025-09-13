@@ -207,9 +207,9 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 
 ## 📞 İletişim
 
-- GitHub: [TradePro-Alpha Repository](https://github.com/yourusername/TradePro-Alpha)
-- Issues: [GitHub Issues](https://github.com/yourusername/TradePro-Alpha/issues)
-- Email: support@tradepro.com
+- GitHub: [TradePro-Alpha Repository](https://github.com/byiyuel/TradePro-Alpha)
+- Issues: [GitHub Issues](https://github.com/byiyuel/TradePro-Alpha/issues)
+- Email: baranyucel643@gmail.com
 
 ---
 
