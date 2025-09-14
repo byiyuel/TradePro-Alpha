@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradePro - Haber Akışı</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: #2a2a2a;
+            border-bottom: 1px solid #333333;
+            padding: 12px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .search-bar {
+            background: #1a1a1a;
+            border: 1px solid #444444;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #ffffff;
+            font-size: 14px;
+            width: 300px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .search-bar:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+        
+        .nav-item {
+            color: #888888;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-item:hover {
+            color: #ffffff;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .back-to-main-btn {
+            background: #00d4ff;
+            color: #1a1a1a;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-to-main-btn:hover {
+            background: #00b8e6;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+        
+        
+        
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            margin-top: 60px;
+            height: calc(100vh - 60px);
+        }
+        
+        /* Left Panel - News Feed */
+        .left-panel {
+            width: 400px;
+            background: #1a1a1a;
+            border-right: 1px solid #333333;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .news-header {
+            padding: 20px;
+            border-bottom: 1px solid #333333;
+        }
+        
+        .news-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .beta-badge {
+            background: #ff6b35;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        .news-dropdown {
+            background: #2a2a2a;
+            border: 1px solid #444444;
+            color: #ffffff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .news-filters {
+            padding: 15px 20px;
+            border-bottom: 1px solid #333333;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: #2a2a2a;
+            border: 1px solid #444444;
+            color: #888888;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .filter-btn:hover {
+            color: #ffffff;
+            border-color: #00d4ff;
+        }
+        
+        .filter-btn.active {
+            color: #00d4ff;
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+        
+        .news-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+        
+        .news-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #333333;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            position: relative;
+        }
+        
+        .news-item:hover {
+            background: #2a2a2a;
+        }
+        
+        .news-item.selected {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 3px solid #00d4ff;
+        }
+        
+        .news-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            color: #888888;
+        }
+        
+        .news-source {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        .news-headline {
+            font-size: 14px;
+            line-height: 1.4;
+            color: #ffffff;
+            font-weight: 500;
+        }
+        
+        /* Right Panel - News Detail */
+        .right-panel {
+            flex: 1;
+            background: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .news-detail-header {
+            padding: 20px;
+            border-bottom: 1px solid #333333;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .news-detail-source {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #888888;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .close-btn:hover {
+            color: #ffffff;
+            background: #2a2a2a;
+        }
+        
+        .news-detail-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .news-detail-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
+            line-height: 1.3;
+            margin-bottom: 15px;
+        }
+        
+        .news-detail-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: #888888;
+        }
+        
+        .news-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .action-btn {
+            background: #2a2a2a;
+            border: 1px solid #444444;
+            color: #888888;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .action-btn:hover {
+            color: #ffffff;
+            border-color: #00d4ff;
+        }
+        
+        .stock-badge {
+            background: #ff4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        
+        .original-link {
+            color: #00d4ff;
+            text-decoration: none;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .original-link:hover {
+            text-decoration: underline;
+        }
+        
+        .news-detail-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #cccccc;
+        }
+        
+        .language-selector {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #333333;
+        }
+        
+        .language-label {
+            font-size: 12px;
+            color: #888888;
+            margin-bottom: 8px;
+        }
+        
+        .language-options {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .language-btn {
+            background: #2a2a2a;
+            border: 1px solid #444444;
+            color: #888888;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .language-btn.active {
+            color: #00d4ff;
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+        
+        /* Favorite indicator */
+        .favorite-indicator {
+            color: #ff6b6b;
+            margin-left: 8px;
+        }
+        
+        /* Action button styles */
+        .action-btn.favorite-active {
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        /* Settings and Help panels */
+        .settings-panel, .help-panel {
+            padding: 20px;
+        }
+        
+        .settings-panel h3, .help-panel h3 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .setting-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #2a2a2a;
+            border-radius: 6px;
+        }
+        
+        .setting-item label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+        
+        .setting-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #00d4ff;
+        }
+        
+        .setting-item select {
+            background: #1a1a1a;
+            border: 1px solid #444444;
+            color: #ffffff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+        
+        .help-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #2a2a2a;
+            border-radius: 6px;
+        }
+        
+        .help-section h4 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .help-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .help-section li {
+            margin-bottom: 8px;
+            color: #cccccc;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .help-section kbd {
+            background: #1a1a1a;
+            border: 1px solid #444444;
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-size: 12px;
+            color: #00d4ff;
+        }
+        
+        /* Right Sidebar */
+        .right-sidebar {
+            width: 50px;
+            background: #2a2a2a;
+            border-left: 1px solid #333333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 15px;
+        }
+        
+        .sidebar-icon {
+            width: 32px;
+            height: 32px;
+            background: #1a1a1a;
+            border: 1px solid #444444;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888888;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-icon:hover {
+            color: #00d4ff;
+            border-color: #00d4ff;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #888888;
+            text-align: center;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+        
+        .empty-state p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        /* Loading State */
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #888888;
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #333333;
+            border-top: 2px solid #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .left-panel {
+                width: 350px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .left-panel {
+                width: 100%;
+                height: 50vh;
+            }
+            
+            .right-panel {
+                height: 50vh;
+            }
+            
+            .right-sidebar {
+                display: none;
+            }
+            
+            .search-bar {
+                width: 200px;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i> TradePro
+            </div>
+            <input type="text" class="search-bar" placeholder="Haberlerde ara..." id="newsSearchBar">
+        </div>
+        <div class="header-right">
+            <a href="index.html" class="back-to-main-btn">
+                <i class="fas fa-arrow-left"></i> Ana Sayfaya Dön
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Panel - News Feed -->
+        <div class="left-panel">
+            <div class="news-header">
+                <div class="news-title">
+                    <i class="fas fa-newspaper"></i> Haber Akışı
+                    <span class="beta-badge">BETA</span>
+                </div>
+                            <select class="news-dropdown" id="newsTypeSelector">
+                                <option value="companies">Şirket Haberleri</option>
+                                <option value="market">Piyasa Haberleri</option>
+                                <option value="tradingview">TradingView Haberleri</option>
+                            </select>
+            </div>
+            
+            <div class="news-filters">
+                <button class="filter-btn active" data-filter="all">
+                    <i class="fas fa-list"></i> Tümü
+                </button>
+                <button class="filter-btn" data-filter="recent">
+                    <i class="fas fa-clock"></i> Son 24 Saat
+                </button>
+                <button class="filter-btn" data-filter="trending">
+                    <i class="fas fa-fire"></i> Trend
+                </button>
+                <button class="filter-btn" data-filter="important">
+                    <i class="fas fa-exclamation-triangle"></i> Önemli
+                </button>
+            </div>
+            
+            <div class="news-list" id="newsList">
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    Haberler yükleniyor...
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - News Detail -->
+        <div class="right-panel">
+            <div class="news-detail-header">
+                <div class="news-detail-source" id="detailSource">MATRIKS KAP</div>
+                <button class="close-btn" id="closeDetailBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="news-detail-content" id="newsDetailContent">
+                <div class="empty-state">
+                    <i class="fas fa-newspaper"></i>
+                    <h3>Haber Seçin</h3>
+                    <p>Sol panelden bir haber seçerek detaylarını görüntüleyebilirsiniz.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="right-sidebar">
+            <div class="sidebar-icon" title="Geçmiş Haberler" id="historyBtn">
+                <i class="fas fa-history"></i>
+            </div>
+            <div class="sidebar-icon" title="Favoriler" id="favoritesBtn">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="sidebar-icon" title="Ayarlar" id="settingsBtn">
+                <i class="fas fa-cog"></i>
+            </div>
+            <div class="sidebar-icon" title="Yardım" id="helpBtn">
+                <i class="fas fa-question"></i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class NewsFeed {
+            constructor() {
+                this.apiBaseUrl = 'http://localhost:3000/api';
+                this.currentNewsType = 'companies';
+                this.selectedNewsItem = null;
+                this.newsData = {
+                    companies: [],
+                    market: []
+                };
+                this.favorites = JSON.parse(localStorage.getItem('newsFavorites') || '[]');
+                this.history = JSON.parse(localStorage.getItem('newsHistory') || '[]');
+                this.currentFilter = 'all';
+                
+                this.init();
+            }
+            
+            async init() {
+                this.setupEventListeners();
+                await this.loadNews();
+            }
+            
+            setupEventListeners() {
+                // News type selector
+                const newsTypeSelector = document.getElementById('newsTypeSelector');
+                newsTypeSelector.addEventListener('change', (e) => {
+                    this.currentNewsType = e.target.value;
+                    this.loadNews();
+                });
+                
+                // Filter buttons
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentFilter = e.target.dataset.filter;
+                        this.applyFilter(e.target.dataset.filter);
+                    });
+                });
+                
+                // Close detail button
+                document.getElementById('closeDetailBtn').addEventListener('click', () => {
+                    this.clearDetailView();
+                });
+                
+                // Search functionality
+                const searchBar = document.getElementById('newsSearchBar');
+                searchBar.addEventListener('input', (e) => {
+                    this.searchNews(e.target.value);
+                });
+                
+                // Sidebar buttons
+                document.getElementById('historyBtn').addEventListener('click', () => {
+                    this.showHistory();
+                });
+                
+                document.getElementById('favoritesBtn').addEventListener('click', () => {
+                    this.showFavorites();
+                });
+                
+                document.getElementById('settingsBtn').addEventListener('click', () => {
+                    this.showSettings();
+                });
+                
+                document.getElementById('helpBtn').addEventListener('click', () => {
+                    this.showHelp();
+                });
+            }
+            
+            async loadNews() {
+                try {
+                    let url;
+                    if (this.currentNewsType === 'tradingview') {
+                        url = `${this.apiBaseUrl}/news/tradingview`;
+                    } else {
+                        url = `${this.apiBaseUrl}/news/${this.currentNewsType}`;
+                    }
+                    
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch news');
+                    }
+                    
+                    this.newsData[this.currentNewsType] = await response.json();
+                    this.displayNewsList();
+                    
+                } catch (error) {
+                    console.error('Error loading news:', error);
+                    this.showError('Haberler yüklenirken bir hata oluştu');
+                }
+            }
+            
+            displayNewsList() {
+                const newsList = document.getElementById('newsList');
+                const news = this.newsData[this.currentNewsType] || [];
+                
+                if (news.length === 0) {
+                    newsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-newspaper"></i>
+                            <h3>Haber Bulunamadı</h3>
+                            <p>Bu kategoride henüz haber bulunmuyor.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                newsList.innerHTML = news.map((item, index) => `
+                    <div class="news-item ${index === 0 ? 'selected' : ''}" data-index="${index}">
+                        <div class="news-meta">
+                            <span>${item.time}</span>
+                            <span>·</span>
+                            <span class="news-source">${item.source || 'TradePro'}</span>
+                        </div>
+                        <div class="news-headline">${item.text}</div>
+                    </div>
+                `).join('');
+                
+                // Add click listeners to news items
+                document.querySelectorAll('.news-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const index = parseInt(item.dataset.index);
+                        this.selectNewsItem(index);
+                    });
+                });
+                
+                // Select first item by default
+                if (news.length > 0) {
+                    this.selectNewsItem(0);
+                }
+            }
+            
+            selectNewsItem(index, newsArray = null) {
+                // Remove selected class from all items
+                document.querySelectorAll('.news-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked item
+                const selectedItem = document.querySelector(`[data-index="${index}"]`);
+                if (selectedItem) {
+                    selectedItem.classList.add('selected');
+                }
+                
+                // Show news detail
+                const news = newsArray ? newsArray[index] : this.newsData[this.currentNewsType][index];
+                this.showNewsDetail(news);
+                
+                // Add to history
+                this.addToHistory(news);
+            }
+            
+            addToHistory(news) {
+                // Remove if already exists
+                this.history = this.history.filter(item => item.text !== news.text);
+                // Add to beginning
+                this.history.unshift({
+                    ...news,
+                    timestamp: new Date().toISOString()
+                });
+                // Keep only last 50 items
+                this.history = this.history.slice(0, 50);
+                // Save to localStorage
+                localStorage.setItem('newsHistory', JSON.stringify(this.history));
+            }
+            
+            toggleFavorite(news) {
+                const index = this.favorites.findIndex(item => item.text === news.text);
+                if (index > -1) {
+                    this.favorites.splice(index, 1);
+                } else {
+                    this.favorites.push(news);
+                }
+                localStorage.setItem('newsFavorites', JSON.stringify(this.favorites));
+                this.updateFavoriteButton(news);
+            }
+            
+            updateFavoriteButton(news) {
+                const favoriteBtn = document.getElementById('favoriteBtn');
+                if (favoriteBtn) {
+                    const isFavorite = this.favorites.some(item => item.text === news.text);
+                    favoriteBtn.innerHTML = isFavorite ? 
+                        '<i class="fas fa-heart"></i> Favorilerden Çıkar' : 
+                        '<i class="far fa-heart"></i> Favorilere Ekle';
+                    favoriteBtn.className = isFavorite ? 'action-btn favorite-active' : 'action-btn';
+                }
+            }
+            
+            showNewsDetail(news) {
+                const detailContent = document.getElementById('newsDetailContent');
+                const detailSource = document.getElementById('detailSource');
+                
+                detailSource.textContent = news.source || 'TradePro';
+                
+                detailContent.innerHTML = `
+                    <div class="news-detail-title">${news.text}</div>
+                    <div class="news-detail-meta">
+                        <span>${news.time}</span>
+                        <span>·</span>
+                        <span>Okuma süresi: 2 dakika</span>
+                    </div>
+                    
+                    <div class="news-actions">
+                        <button class="action-btn" id="favoriteBtn" onclick="newsFeed.toggleFavorite(news)">
+                            <i class="far fa-heart"></i> Favorilere Ekle
+                        </button>
+                        <button class="action-btn" onclick="window.open('${news.url}', '_blank')">
+                            <i class="fas fa-external-link-alt"></i> Orijinal Link
+                        </button>
+                        <button class="action-btn" onclick="navigator.share({title: '${news.text}', url: '${news.url || ''}'})">
+                            <i class="fas fa-share"></i> Paylaş
+                        </button>
+                    </div>
+                    
+                    ${news.url ? `
+                        <a href="${news.url}" class="original-link" target="_blank">
+                            <i class="fas fa-external-link-alt"></i>
+                            Orjinal Link: ${news.url}
+                        </a>
+                    ` : ''}
+                    
+                    <div class="news-detail-text">
+                        <p>Bu haber ${news.source || 'TradePro'} tarafından ${news.time} tarihinde yayınlanmıştır.</p>
+                        <p>Haberin tam içeriğini okumak için yukarıdaki "Orjinal Link" butonuna tıklayabilirsiniz.</p>
+                    </div>
+                    
+                    <div class="language-selector">
+                        <div class="language-label">Dil Seçimi</div>
+                        <div class="language-options">
+                            <button class="language-btn active">Türkçe</button>
+                            <button class="language-btn">İngilizce</button>
+                        </div>
+                    </div>
+                `;
+                
+                // Add action button listeners
+                document.querySelectorAll('.action-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        if (news.url) {
+                            window.open(news.url, '_blank');
+                        }
+                    });
+                });
+                
+                // Add language button listeners
+                document.querySelectorAll('.language-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.language-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                    });
+                });
+            }
+            
+            clearDetailView() {
+                const detailContent = document.getElementById('newsDetailContent');
+                detailContent.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-newspaper"></i>
+                        <h3>Haber Seçin</h3>
+                        <p>Sol panelden bir haber seçerek detaylarını görüntüleyebilirsiniz.</p>
+                    </div>
+                `;
+                
+                // Remove selected class from all items
+                document.querySelectorAll('.news-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+            }
+            
+            applyFilter(filter) {
+                const news = this.newsData[this.currentNewsType] || [];
+                let filteredNews = [...news];
+                
+                switch(filter) {
+                    case 'recent':
+                        // Son 24 saat içindeki haberler (simulated)
+                        filteredNews = news.filter(item => {
+                            const timeText = item.time.toLowerCase();
+                            return timeText.includes('saat') || timeText.includes('dakika') || timeText.includes('az önce');
+                        });
+                        break;
+                    case 'trending':
+                        // Trend haberler (simulated - önemli kelimeler içeren)
+                        const trendingKeywords = ['bitcoin', 'tesla', 'apple', 'microsoft', 'nvidia', 'amazon', 'google', 'meta'];
+                        filteredNews = news.filter(item => 
+                            trendingKeywords.some(keyword => 
+                                item.text.toLowerCase().includes(keyword)
+                            )
+                        );
+                        break;
+                    case 'important':
+                        // Önemli haberler (simulated - büyük harflerle başlayan veya özel kelimeler içeren)
+                        filteredNews = news.filter(item => 
+                            item.text.includes('BREAKING') || 
+                            item.text.includes('ÖNEMLİ') ||
+                            item.text.includes('ACİL') ||
+                            item.text.includes('!')
+                        );
+                        break;
+                    case 'all':
+                    default:
+                        filteredNews = news;
+                        break;
+                }
+                
+                this.displayFilteredNews(filteredNews);
+            }
+            
+            displayFilteredNews(news) {
+                const newsList = document.getElementById('newsList');
+                
+                if (news.length === 0) {
+                    newsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-filter"></i>
+                            <h3>Filtre Sonucu Bulunamadı</h3>
+                            <p>Bu filtreye uygun haber bulunmuyor.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                newsList.innerHTML = news.map((item, index) => `
+                    <div class="news-item ${index === 0 ? 'selected' : ''}" data-index="${index}">
+                        <div class="news-meta">
+                            <span>${item.time}</span>
+                            <span>·</span>
+                            <span class="news-source">${item.source || 'TradePro'}</span>
+                            ${this.favorites.includes(item.text) ? '<span class="favorite-indicator">❤️</span>' : ''}
+                        </div>
+                        <div class="news-headline">${item.text}</div>
+                    </div>
+                `).join('');
+                
+                // Add click listeners to news items
+                document.querySelectorAll('.news-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const index = parseInt(item.dataset.index);
+                        this.selectNewsItem(index, news);
+                    });
+                });
+                
+                // Select first item by default
+                if (news.length > 0) {
+                    this.selectNewsItem(0, news);
+                }
+            }
+            
+            searchNews(query) {
+                if (!query.trim()) {
+                    this.displayNewsList();
+                    return;
+                }
+                
+                const news = this.newsData[this.currentNewsType] || [];
+                const filteredNews = news.filter(item => 
+                    item.text.toLowerCase().includes(query.toLowerCase()) ||
+                    (item.source && item.source.toLowerCase().includes(query.toLowerCase()))
+                );
+                
+                // Temporarily update news data for display
+                const originalData = this.newsData[this.currentNewsType];
+                this.newsData[this.currentNewsType] = filteredNews;
+                this.displayNewsList();
+                
+                // Restore original data
+                setTimeout(() => {
+                    this.newsData[this.currentNewsType] = originalData;
+                }, 100);
+            }
+            
+            showError(message) {
+                const newsList = document.getElementById('newsList');
+                newsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Hata</h3>
+                        <p>${message}</p>
+                    </div>
+                `;
+            }
+            
+            showHistory() {
+                if (this.history.length === 0) {
+                    this.showError('Henüz görüntülenen haber bulunmuyor.');
+                    return;
+                }
+                
+                this.displayFilteredNews(this.history);
+                document.querySelector('.news-title').innerHTML = '<i class="fas fa-history"></i> Geçmiş Haberler';
+            }
+            
+            showFavorites() {
+                if (this.favorites.length === 0) {
+                    this.showError('Henüz favori haber bulunmuyor.');
+                    return;
+                }
+                
+                this.displayFilteredNews(this.favorites);
+                document.querySelector('.news-title').innerHTML = '<i class="fas fa-heart"></i> Favori Haberler';
+            }
+            
+            showSettings() {
+                const settingsHtml = `
+                    <div class="settings-panel">
+                        <h3><i class="fas fa-cog"></i> Ayarlar</h3>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="autoRefresh" checked>
+                                Otomatik yenileme
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="notifications" checked>
+                                Bildirimler
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="darkMode" checked>
+                                Karanlık tema
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                Haber sayısı:
+                                <select id="newsCount">
+                                    <option value="10">10</option>
+                                    <option value="20" selected>20</option>
+                                    <option value="50">50</option>
+                                </select>
+                            </label>
+                        </div>
+                        <button class="action-btn" onclick="newsFeed.clearData()">
+                            <i class="fas fa-trash"></i> Verileri Temizle
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('newsDetailContent').innerHTML = settingsHtml;
+                document.getElementById('detailSource').textContent = 'Ayarlar';
+            }
+            
+            showHelp() {
+                const helpHtml = `
+                    <div class="help-panel">
+                        <h3><i class="fas fa-question"></i> Yardım</h3>
+                        <div class="help-section">
+                            <h4>Kullanım Kılavuzu</h4>
+                            <ul>
+                                <li><strong>Filtreler:</strong> Haberleri kategorilere ayırmak için filtre butonlarını kullanın</li>
+                                <li><strong>Arama:</strong> Üst kısımdaki arama çubuğunu kullanarak haberlerde arama yapın</li>
+                                <li><strong>Favoriler:</strong> Haberleri favorilere ekleyerek daha sonra kolayca erişin</li>
+                                <li><strong>Geçmiş:</strong> Görüntülediğiniz haberlerin geçmişini takip edin</li>
+                                <li><strong>Paylaşım:</strong> Haberleri sosyal medyada paylaşın</li>
+                            </ul>
+                        </div>
+                        <div class="help-section">
+                            <h4>Kısayollar</h4>
+                            <ul>
+                                <li><kbd>Ctrl + K</kbd> - Arama çubuğuna odaklan</li>
+                                <li><kbd>↑/↓</kbd> - Haberler arasında gezin</li>
+                                <li><kbd>Enter</kbd> - Seçili haberi aç</li>
+                                <li><kbd>F</kbd> - Favorilere ekle/çıkar</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('newsDetailContent').innerHTML = helpHtml;
+                document.getElementById('detailSource').textContent = 'Yardım';
+            }
+            
+            clearData() {
+                if (confirm('Tüm verileri temizlemek istediğinizden emin misiniz?')) {
+                    localStorage.removeItem('newsFavorites');
+                    localStorage.removeItem('newsHistory');
+                    this.favorites = [];
+                    this.history = [];
+                    alert('Veriler temizlendi!');
+                    this.loadNews();
+                }
+            }
+        }
+        
+        // Initialize news feed when DOM is loaded
+        let newsFeed;
+        document.addEventListener('DOMContentLoaded', () => {
+            newsFeed = new NewsFeed();
+        });
+    </script>
+</body>
+</html>

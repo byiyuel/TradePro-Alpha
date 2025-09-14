@@ -11,7 +11,6 @@ class TradeProApp {
         this.isConnected = false;
         this.userId = 'demo-user'; // Demo user ID
         this.alarms = [];
-        this.currentTheme = 'dark';
         this.chartType = 'line';
         this.user = null;
         this.token = null;
@@ -21,18 +20,10 @@ class TradeProApp {
     }
     
     async init() {
-        this.loadTheme();
+        console.log('🚀 TradePro App initializing...');
         this.setupEventListeners();
         
-        // Check for existing authentication
-        const isAuthenticated = await this.checkAuthentication();
-        
-        if (!isAuthenticated) {
-            this.showAuthScreen();
-            return;
-        }
-        
-        // User is authenticated, proceed with app initialization
+        // Direct app initialization without authentication
         this.showLoadingScreen();
         this.connectWebSocket();
         
@@ -43,62 +34,146 @@ class TradeProApp {
                 this.loadAlarms()
             ]);
             
-            // Load news after initial data (non-blocking)
-            this.loadCompanyNews(this.currentSymbol).catch(error => {
-                console.warn('News loading failed:', error);
-            });
+            // Load initial chart
+            await this.loadChartData(this.currentSymbol);
+            
+            // Load initial screener data
+            await this.loadScreenerData();
+            
+            // Load portfolios
+            await this.loadPortfolios();
+            
+            // Initialize advanced chart
+            this.initializeAdvancedChart();
+            
+            // Load alerts and notifications (with error handling)
+            try {
+                await this.loadAlerts();
+            } catch (error) {
+                console.error('Error loading alerts:', error);
+            }
+            
+            try {
+                await this.loadNotifications();
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
             
             this.startPeriodicUpdates();
             
-            // Hide loading screen faster
-            setTimeout(() => {
-                this.hideLoadingScreen();
-            }, 800); // Reduced from 1.5s to 0.8s
+            // Hide loading screen immediately after data loads
+            console.log('✅ All data loaded successfully, hiding loading screen...');
+            this.hideLoadingScreen();
             
         } catch (error) {
-            console.error('Error during initialization:', error);
+            console.error('❌ Error during initialization:', error);
             this.hideLoadingScreen();
         }
+        
+        // Emergency fallback - hide loading screen after 3 seconds no matter what
+        setTimeout(() => {
+            this.hideLoadingScreen();
+        }, 3000);
     }
     
-    async checkAuthentication() {
-        const token = localStorage.getItem('tradepro_token');
-        const user = localStorage.getItem('tradepro_user');
+    setupNavbarDropdowns() {
+        // Notifications dropdown
+        const notificationsBtn = document.getElementById('notificationsBtn');
+        const notificationsDropdown = document.getElementById('notificationsDropdown');
         
-        if (!token || !user) {
-            return false;
+        if (notificationsBtn && notificationsDropdown) {
+            notificationsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleDropdown(notificationsDropdown);
+            });
         }
         
-        try {
-            // Verify token with server
-            const response = await fetch(`${this.apiBaseUrl}/auth/verify`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
+        // Social Trading dropdown
+        const socialTradingBtn = document.getElementById('socialTradingBtn');
+        const socialTradingDropdown = document.getElementById('socialTradingDropdown');
+        
+        if (socialTradingBtn && socialTradingDropdown) {
+            socialTradingBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleDropdown(socialTradingDropdown);
+            });
+        }
+        
+        // Portfolio dropdown
+        const portfolioBtn = document.getElementById('portfolioBtn');
+        const portfolioDropdown = document.getElementById('portfolioDropdownContent');
+        
+        if (portfolioBtn && portfolioDropdown) {
+            portfolioBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleDropdown(portfolioDropdown);
+            });
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.nav-dropdown')) {
+                this.closeAllDropdowns();
+            }
+        });
+        
+        // Social trading tabs
+        this.setupSocialTradingTabs();
+    }
+    
+    toggleDropdown(dropdown) {
+        const isActive = dropdown.classList.contains('active');
+        this.closeAllDropdowns();
+        
+        if (!isActive) {
+            dropdown.classList.add('active');
+            const toggleBtn = dropdown.previousElementSibling;
+            if (toggleBtn) {
+                toggleBtn.classList.add('active');
+            }
+        }
+    }
+    
+    closeAllDropdowns() {
+        const dropdowns = document.querySelectorAll('.dropdown-content');
+        const toggleBtns = document.querySelectorAll('.dropdown-toggle');
+        
+        dropdowns.forEach(dropdown => {
+            dropdown.classList.remove('active');
+        });
+        
+        toggleBtns.forEach(btn => {
+            btn.classList.remove('active');
+        });
+    }
+    
+    setupSocialTradingTabs() {
+        const socialTabBtns = document.querySelectorAll('.social-tab-btn');
+        const socialTabContents = document.querySelectorAll('.social-tab-content');
+        
+        socialTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.getAttribute('data-tab');
+                
+                // Remove active class from all tabs and contents
+                socialTabBtns.forEach(b => b.classList.remove('active'));
+                socialTabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                btn.classList.add('active');
+                const targetContent = document.getElementById(tabName + 'Tab');
+                if (targetContent) {
+                    targetContent.classList.add('active');
                 }
             });
-            
-            if (response.ok) {
-                const data = await response.json();
-                this.token = token;
-                this.user = JSON.parse(user);
-                this.userId = this.user.id;
-                this.updateAuthUI();
-                return true;
-            } else {
-                // Token is invalid, clear storage
-                localStorage.removeItem('tradepro_token');
-                localStorage.removeItem('tradepro_user');
-                return false;
-            }
-        } catch (error) {
-            console.error('Error verifying authentication:', error);
-            localStorage.removeItem('tradepro_token');
-            localStorage.removeItem('tradepro_user');
-            return false;
-        }
+        });
     }
     
+    
     setupEventListeners() {
+        // Navbar dropdown functionality
+        this.setupNavbarDropdowns();
+        
         // Search functionality
         const searchInput = document.querySelector('.search-input');
         const searchDropdown = document.querySelector('.search-dropdown');
@@ -161,7 +236,182 @@ class TradeProApp {
             if (!e.target.closest('.search-container')) {
                 this.hideSearchResults();
             }
+            
+            // Tab system for technical analysis
+            if (e.target.classList.contains('tab-btn')) {
+                this.switchAnalysisTab(e.target.dataset.tab);
+            }
         });
+        
+        // Portfolio management
+        this.currentPortfolio = null;
+        this.portfolios = [];
+        
+        // Advanced chart
+        this.advancedChart = null;
+        
+        // Alert system
+        this.alerts = [];
+        this.notifications = [];
+        this.unreadNotifications = 0;
+        
+        // Portfolio event listeners
+        const createPortfolioBtn = document.getElementById('createPortfolioBtn');
+        if (createPortfolioBtn) {
+            createPortfolioBtn.addEventListener('click', () => this.showCreatePortfolioModal());
+        }
+        
+        const portfolioToggle = document.getElementById('portfolioToggle');
+        if (portfolioToggle) {
+            portfolioToggle.addEventListener('click', () => this.togglePortfolioContent());
+        }
+        
+        const portfolioDropdown = document.getElementById('portfolioDropdown');
+        if (portfolioDropdown) {
+            portfolioDropdown.addEventListener('change', (e) => this.selectPortfolio(e.target.value));
+        }
+        
+        const buyStockBtn = document.getElementById('buyStockBtn');
+        if (buyStockBtn) {
+            buyStockBtn.addEventListener('click', () => this.showTradeModal('BUY'));
+        }
+        
+        const sellStockBtn = document.getElementById('sellStockBtn');
+        if (sellStockBtn) {
+            sellStockBtn.addEventListener('click', () => this.showTradeModal('SELL'));
+        }
+        
+        const viewRiskBtn = document.getElementById('viewRiskBtn');
+        if (viewRiskBtn) {
+            viewRiskBtn.addEventListener('click', () => this.showRiskAnalysis());
+        }
+        
+        // Portfolio modal listeners
+        const closeCreatePortfolioBtn = document.getElementById('closeCreatePortfolioBtn');
+        if (closeCreatePortfolioBtn) {
+            closeCreatePortfolioBtn.addEventListener('click', () => this.hideCreatePortfolioModal());
+        }
+        
+        const cancelCreatePortfolio = document.getElementById('cancelCreatePortfolio');
+        if (cancelCreatePortfolio) {
+            cancelCreatePortfolio.addEventListener('click', () => this.hideCreatePortfolioModal());
+        }
+        
+        const confirmCreatePortfolio = document.getElementById('confirmCreatePortfolio');
+        if (confirmCreatePortfolio) {
+            confirmCreatePortfolio.addEventListener('click', () => this.createPortfolio());
+        }
+        
+        const closeTradeModalBtn = document.getElementById('closeTradeModalBtn');
+        if (closeTradeModalBtn) {
+            closeTradeModalBtn.addEventListener('click', () => this.hideTradeModal());
+        }
+        
+        const cancelTrade = document.getElementById('cancelTrade');
+        if (cancelTrade) {
+            cancelTrade.addEventListener('click', () => this.hideTradeModal());
+        }
+        
+        const confirmTrade = document.getElementById('confirmTrade');
+        if (confirmTrade) {
+            confirmTrade.addEventListener('click', () => this.executeTrade());
+        }
+        
+        const closeRiskModalBtn = document.getElementById('closeRiskModalBtn');
+        if (closeRiskModalBtn) {
+            closeRiskModalBtn.addEventListener('click', () => this.hideRiskAnalysisModal());
+        }
+        
+        const closeRiskAnalysis = document.getElementById('closeRiskAnalysis');
+        if (closeRiskAnalysis) {
+            closeRiskAnalysis.addEventListener('click', () => this.hideRiskAnalysisModal());
+        }
+        
+        // Trade form listeners
+        const tradeQuantity = document.getElementById('tradeQuantity');
+        if (tradeQuantity) {
+            tradeQuantity.addEventListener('input', () => this.calculateTradeTotal());
+        }
+        
+        const tradePrice = document.getElementById('tradePrice');
+        if (tradePrice) {
+            tradePrice.addEventListener('input', () => this.calculateTradeTotal());
+        }
+        
+        const tradeCommission = document.getElementById('tradeCommission');
+        if (tradeCommission) {
+            tradeCommission.addEventListener('input', () => this.calculateTradeTotal());
+        }
+        
+        // Alert system listeners
+        const createAlertBtn = document.getElementById('createAlertBtn');
+        if (createAlertBtn) {
+            createAlertBtn.addEventListener('click', () => this.showCreateAlertModal());
+        }
+        
+        const alertToggle = document.getElementById('alertToggle');
+        if (alertToggle) {
+            alertToggle.addEventListener('click', () => this.toggleAlertContent());
+        }
+        const alertTabBtns = document.querySelectorAll('.alert-tab-btn');
+        if (alertTabBtns.length > 0) {
+            alertTabBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => this.switchAlertTab(e.target.dataset.tab));
+            });
+        }
+        
+        // Alert modal listeners
+        const closeCreateAlertBtn = document.getElementById('closeCreateAlertBtn');
+        if (closeCreateAlertBtn) {
+            closeCreateAlertBtn.addEventListener('click', () => this.hideCreateAlertModal());
+        }
+        
+        const cancelCreateAlert = document.getElementById('cancelCreateAlert');
+        if (cancelCreateAlert) {
+            cancelCreateAlert.addEventListener('click', () => this.hideCreateAlertModal());
+        }
+        
+        const confirmCreateAlert = document.getElementById('confirmCreateAlert');
+        if (confirmCreateAlert) {
+            confirmCreateAlert.addEventListener('click', () => this.createAlert());
+        }
+        
+        // Alert type change listener
+        const alertType = document.getElementById('alertType');
+        if (alertType) {
+            alertType.addEventListener('change', (e) => this.handleAlertTypeChange(e.target.value));
+        }
+        
+        // Social trading listeners
+        const createTraderBtn = document.getElementById('createTraderBtn');
+        if (createTraderBtn) {
+            createTraderBtn.addEventListener('click', () => this.showCreateTraderModal());
+        }
+        
+        const socialToggle = document.getElementById('socialToggle');
+        if (socialToggle) {
+            socialToggle.addEventListener('click', () => this.toggleSocialContent());
+        }
+        
+        const socialTabBtns = document.querySelectorAll('.social-tab-btn');
+        if (socialTabBtns.length > 0) {
+            socialTabBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => this.switchSocialTab(e.target.dataset.tab));
+            });
+        }
+        
+        // Trader search
+        const searchTradersBtn = document.getElementById('searchTradersBtn');
+        if (searchTradersBtn) {
+            searchTradersBtn.addEventListener('click', () => this.searchTraders());
+        }
+        
+        const traderSearchInput = document.getElementById('traderSearchInput');
+        if (traderSearchInput) {
+            traderSearchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') this.searchTraders();
+            });
+        }
         
         // Add stock modal
         const addStockBtn = document.getElementById('addStockBtn');
@@ -256,56 +506,18 @@ class TradeProApp {
             this.applyScreenerFilters();
         });
         
-        // Theme toggle
-        const themeToggle = document.getElementById('themeToggle');
-        themeToggle.addEventListener('click', () => {
-            this.toggleTheme();
-        });
-        
-        // Authentication Screen
-        const loginTab = document.getElementById('loginTab');
-        const registerTab = document.getElementById('registerTab');
-        const authLoginForm = document.getElementById('authLoginForm');
-        const authRegisterForm = document.getElementById('authRegisterForm');
-        
-        if (loginTab) loginTab.addEventListener('click', () => this.switchAuthTab('login'));
-        if (registerTab) registerTab.addEventListener('click', () => this.switchAuthTab('register'));
-        if (authLoginForm) authLoginForm.addEventListener('submit', (e) => this.handleAuthLogin(e));
-        if (authRegisterForm) authRegisterForm.addEventListener('submit', (e) => this.handleAuthRegister(e));
-        
-        // Logout button
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) logoutBtn.addEventListener('click', () => this.logout());
         
         
-        // Add alarm button
-        const addAlarmBtn = document.getElementById('addAlarmBtn');
-        addAlarmBtn.addEventListener('click', () => {
-            this.openAlarmModal();
-        });
         
-        // Alarm modal
-        const alarmModal = document.getElementById('addAlarmModal');
-        const closeAlarmModalBtn = document.getElementById('closeAlarmModalBtn');
-        const alarmSubmitBtn = document.getElementById('alarmSubmitBtn');
         
-        closeAlarmModalBtn.addEventListener('click', () => {
-            alarmModal.style.display = 'none';
-        });
-        
-        alarmSubmitBtn.addEventListener('click', () => {
-            this.createAlarm();
-        });
-    }
+        // Old alarm system removed - now using advanced alert system
     
-    async connectWebSocket() {
-        if (!this.token) {
-            console.error('Cannot connect WebSocket: No authentication token');
-            return;
+        // News link button (no event listener needed - just a link)
         }
         
+    async connectWebSocket() {
         try {
-            this.ws = new WebSocket(`${this.wsUrl}?token=${this.token}`);
+            this.ws = new WebSocket(`${this.wsUrl}`);
             
             this.ws.onopen = () => {
                 console.log('WebSocket connected');
@@ -322,11 +534,10 @@ class TradeProApp {
                         this.stockData = data.data;
                         this.updateAllDisplays();
                         console.log('⚡ Initial data received and displayed');
+                    } else if (data.type === 'alert') {
+                        this.handleAlertMessage(data);
                     } else if (data.type === 'error') {
                         console.error('WebSocket error:', data.message);
-                        if (data.message === 'Authentication required' || data.message === 'Invalid authentication token') {
-                            this.logout();
-                        }
                     }
                 } catch (error) {
                     console.error('Error parsing WebSocket message:', error);
@@ -337,10 +548,8 @@ class TradeProApp {
                 console.log('WebSocket disconnected');
                 this.isConnected = false;
                 this.updateConnectionStatus('Bağlantı kesildi');
-                // Reconnect after 5 seconds if user is still authenticated
-                if (this.token) {
+                // Reconnect after 5 seconds
                     setTimeout(() => this.connectWebSocket(), 5000);
-                }
             };
             
             this.ws.onerror = (error) => {
@@ -364,7 +573,7 @@ class TradeProApp {
             const response = await fetch(`${this.apiBaseUrl}/stocks`, { headers });
             if (!response.ok) {
                 if (response.status === 401) {
-                    this.logout();
+                    console.error('Unauthorized access');
                     return;
                 }
                 throw new Error('Failed to fetch stock data');
@@ -433,6 +642,771 @@ class TradeProApp {
         const changeElement = document.getElementById('selectedChange');
         changeElement.textContent = `${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(2)} (${stock.changePercent >= 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%)`;
         changeElement.className = `stock-change-large ${stock.changePercent >= 0 ? 'positive' : 'negative'}`;
+        
+        // Update advanced technical analysis
+        this.updateAdvancedIndicators(stock);
+    }
+    
+    switchAnalysisTab(tabName) {
+        // Remove active class from all tabs and content
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        // Add active class to selected tab and content
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        document.getElementById(`${tabName}Indicators`).classList.add('active');
+    }
+    
+    updateAdvancedIndicators(stock) {
+        if (!stock.indicators) return;
+        
+        const indicators = stock.indicators;
+        
+        // EMA values
+        if (indicators.ema12) document.getElementById('ema12Value').textContent = this.formatPrice(indicators.ema12, stock.currency);
+        if (indicators.ema26) document.getElementById('ema26Value').textContent = this.formatPrice(indicators.ema26, stock.currency);
+        
+        // Ichimoku values
+        if (indicators.ichimoku) {
+            const ichimoku = indicators.ichimoku;
+            if (ichimoku.tenkan) document.getElementById('tenkanValue').textContent = this.formatPrice(ichimoku.tenkan, stock.currency);
+            if (ichimoku.kijun) document.getElementById('kijunValue').textContent = this.formatPrice(ichimoku.kijun, stock.currency);
+            if (ichimoku.senkouA) document.getElementById('senkouAValue').textContent = this.formatPrice(ichimoku.senkouA, stock.currency);
+        }
+        
+        // Momentum indicators
+        if (indicators.williams !== undefined) document.getElementById('williamsValue').textContent = `${indicators.williams.toFixed(1)}%`;
+        if (indicators.cci !== undefined) document.getElementById('cciValue').textContent = indicators.cci.toFixed(1);
+        if (indicators.adx !== undefined) document.getElementById('adxValue').textContent = indicators.adx.toFixed(1);
+        
+        // Volatility
+        if (indicators.atr) document.getElementById('atrValue').textContent = this.formatPrice(indicators.atr, stock.currency);
+        
+        // Fibonacci levels
+        if (indicators.fibonacci) {
+            const fib = indicators.fibonacci;
+            if (fib.level78) document.getElementById('fib78Value').textContent = this.formatPrice(fib.level78, stock.currency);
+            if (fib.level61) document.getElementById('fib61Value').textContent = this.formatPrice(fib.level61, stock.currency);
+            if (fib.level50) document.getElementById('fib50Value').textContent = this.formatPrice(fib.level50, stock.currency);
+            if (fib.level38) document.getElementById('fib38Value').textContent = this.formatPrice(fib.level38, stock.currency);
+            if (fib.level23) document.getElementById('fib23Value').textContent = this.formatPrice(fib.level23, stock.currency);
+        }
+        
+        // Update confidence meter
+        if (indicators.confidence !== undefined) {
+            const confidence = indicators.confidence;
+            document.getElementById('confidenceValue').textContent = `${confidence}%`;
+            document.getElementById('confidenceFill').style.width = `${confidence}%`;
+        }
+        
+        // Update recommendation
+        if (indicators.recommendation) {
+            const recommendationElement = document.getElementById('recommendationValue');
+            recommendationElement.textContent = indicators.recommendation;
+            recommendationElement.className = `recommendation-value ${indicators.recommendation.toLowerCase()}`;
+        }
+    }
+    
+    // Portfolio Management Functions
+    async loadPortfolios() {
+        try {
+            const userId = 'demo_user'; // In production, get from auth
+            const response = await fetch(`/api/portfolios/${userId}`);
+            if (response.ok) {
+                this.portfolios = await response.json();
+                this.updatePortfolioDropdown();
+            }
+        } catch (error) {
+            console.error('Error loading portfolios:', error);
+        }
+    }
+    
+    updatePortfolioDropdown() {
+        const dropdown = document.getElementById('portfolioDropdown');
+        dropdown.innerHTML = '<option value="">Portföy Seçin</option>';
+        
+        this.portfolios.forEach(portfolio => {
+            const option = document.createElement('option');
+            option.value = portfolio.id;
+            option.textContent = portfolio.name;
+            dropdown.appendChild(option);
+        });
+    }
+    
+    async selectPortfolio(portfolioId) {
+        if (!portfolioId) {
+            document.getElementById('portfolioSummary').style.display = 'none';
+            this.currentPortfolio = null;
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/portfolio/${portfolioId}`);
+            if (response.ok) {
+                this.currentPortfolio = await response.json();
+                this.updatePortfolioDisplay();
+                document.getElementById('portfolioSummary').style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error loading portfolio:', error);
+        }
+    }
+    
+    updatePortfolioDisplay() {
+        if (!this.currentPortfolio) return;
+        
+        const portfolio = this.currentPortfolio;
+        
+        // Update summary cards
+        document.getElementById('totalValue').textContent = this.formatPrice(portfolio.currentCapital, '$');
+        document.getElementById('dailyReturn').textContent = this.formatPrice(portfolio.performance.dailyReturn, '$');
+        document.getElementById('totalReturn').textContent = this.formatPrice(portfolio.performance.totalReturn, '$');
+        document.getElementById('returnPercent').textContent = `${portfolio.performance.totalReturnPercent.toFixed(2)}%`;
+        
+        // Update colors
+        document.getElementById('dailyReturn').className = `summary-value ${portfolio.performance.dailyReturn >= 0 ? 'positive' : 'negative'}`;
+        document.getElementById('totalReturn').className = `summary-value ${portfolio.performance.totalReturn >= 0 ? 'positive' : 'negative'}`;
+        document.getElementById('returnPercent').className = `summary-value ${portfolio.performance.totalReturnPercent >= 0 ? 'positive' : 'negative'}`;
+        
+        // Update positions
+        this.updatePortfolioPositions();
+    }
+    
+    updatePortfolioPositions() {
+        const container = document.getElementById('portfolioPositions');
+        container.innerHTML = '';
+        
+        if (this.currentPortfolio.positions.length === 0) {
+            container.innerHTML = '<div class="no-positions">Henüz pozisyon yok</div>';
+            return;
+        }
+        
+        this.currentPortfolio.positions.forEach(position => {
+            const positionItem = document.createElement('div');
+            positionItem.className = 'position-item';
+            
+            positionItem.innerHTML = `
+                <div class="position-info">
+                    <div class="position-symbol">${position.symbol}</div>
+                    <div class="position-quantity">${position.quantity} adet</div>
+                </div>
+                <div class="position-values">
+                    <div class="position-value">${this.formatPrice(position.marketValue, '$')}</div>
+                    <div class="position-pnl ${position.unrealizedPnL >= 0 ? 'positive' : 'negative'}">
+                        ${position.unrealizedPnL >= 0 ? '+' : ''}${this.formatPrice(position.unrealizedPnL, '$')} (${position.unrealizedPnLPercent.toFixed(2)}%)
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(positionItem);
+        });
+    }
+    
+    togglePortfolioContent() {
+        const content = document.getElementById('portfolioContent');
+        const toggle = document.getElementById('portfolioToggle');
+        
+        if (content.classList.contains('active')) {
+            content.classList.remove('active');
+            toggle.innerHTML = '<i class="fas fa-chevron-down"></i>';
+        } else {
+            content.classList.add('active');
+            toggle.innerHTML = '<i class="fas fa-chevron-up"></i>';
+        }
+    }
+    
+    showCreatePortfolioModal() {
+        document.getElementById('createPortfolioModal').style.display = 'block';
+    }
+    
+    hideCreatePortfolioModal() {
+        document.getElementById('createPortfolioModal').style.display = 'none';
+        document.getElementById('portfolioName').value = '';
+        document.getElementById('initialCapital').value = '';
+    }
+    
+    async createPortfolio() {
+        const name = document.getElementById('portfolioName').value.trim();
+        const capital = parseFloat(document.getElementById('initialCapital').value);
+        
+        if (!name || !capital || capital < 1000) {
+            alert('Lütfen geçerli bir portföy adı ve en az $1,000 sermaye girin.');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/portfolio/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: 'demo_user',
+                    name: name,
+                    initialCapital: capital
+                })
+            });
+            
+            if (response.ok) {
+                const portfolio = await response.json();
+                this.portfolios.push(portfolio);
+                this.updatePortfolioDropdown();
+                this.hideCreatePortfolioModal();
+                
+                // Auto-select the new portfolio
+                document.getElementById('portfolioDropdown').value = portfolio.id;
+                this.selectPortfolio(portfolio.id);
+            } else {
+                const error = await response.json();
+                alert('Portföy oluşturulamadı: ' + error.error);
+            }
+        } catch (error) {
+            console.error('Error creating portfolio:', error);
+            alert('Portföy oluşturulurken hata oluştu.');
+        }
+    }
+    
+    showTradeModal(type) {
+        if (!this.currentPortfolio) {
+            alert('Lütfen önce bir portföy seçin.');
+            return;
+        }
+        
+        this.currentTradeType = type;
+        document.getElementById('tradeModalTitle').textContent = `Hisse ${type === 'BUY' ? 'Al' : 'Sat'}`;
+        document.getElementById('tradeModal').style.display = 'block';
+        
+        // Clear form
+        document.getElementById('tradeSymbol').value = '';
+        document.getElementById('tradeQuantity').value = '';
+        document.getElementById('tradePrice').value = '';
+        document.getElementById('tradeCommission').value = '0';
+        this.calculateTradeTotal();
+    }
+    
+    hideTradeModal() {
+        document.getElementById('tradeModal').style.display = 'none';
+    }
+    
+    calculateTradeTotal() {
+        const quantity = parseFloat(document.getElementById('tradeQuantity').value) || 0;
+        const price = parseFloat(document.getElementById('tradePrice').value) || 0;
+        const commission = parseFloat(document.getElementById('tradeCommission').value) || 0;
+        
+        const total = (quantity * price) + commission;
+        document.getElementById('tradeTotal').textContent = this.formatPrice(total, '$');
+    }
+    
+    async executeTrade() {
+        const symbol = document.getElementById('tradeSymbol').value.trim().toUpperCase();
+        const quantity = parseInt(document.getElementById('tradeQuantity').value);
+        const price = parseFloat(document.getElementById('tradePrice').value);
+        const commission = parseFloat(document.getElementById('tradeCommission').value) || 0;
+        
+        if (!symbol || !quantity || !price) {
+            alert('Lütfen tüm alanları doldurun.');
+            return;
+        }
+        
+        try {
+            const endpoint = this.currentTradeType === 'BUY' ? 'buy' : 'sell';
+            const response = await fetch(`/api/portfolio/${this.currentPortfolio.id}/${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    symbol: symbol,
+                    quantity: quantity,
+                    price: price,
+                    commission: commission
+                })
+            });
+            
+            if (response.ok) {
+                const updatedPortfolio = await response.json();
+                this.currentPortfolio = updatedPortfolio;
+                this.updatePortfolioDisplay();
+                this.hideTradeModal();
+                
+                // Show success message
+                const message = this.currentTradeType === 'BUY' ? 
+                    `${quantity} adet ${symbol} alındı.` : 
+                    `${quantity} adet ${symbol} satıldı.`;
+                this.showNotification(message, 'success');
+            } else {
+                const error = await response.json();
+                alert('İşlem başarısız: ' + error.error);
+            }
+        } catch (error) {
+            console.error('Error executing trade:', error);
+            alert('İşlem sırasında hata oluştu.');
+        }
+    }
+    
+    async showRiskAnalysis() {
+        if (!this.currentPortfolio) {
+            alert('Lütfen önce bir portföy seçin.');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/portfolio/${this.currentPortfolio.id}/risk`);
+            if (response.ok) {
+                const riskMetrics = await response.json();
+                this.updateRiskAnalysisDisplay(riskMetrics);
+                document.getElementById('riskAnalysisModal').style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error loading risk analysis:', error);
+            alert('Risk analizi yüklenirken hata oluştu.');
+        }
+    }
+    
+    updateRiskAnalysisDisplay(metrics) {
+        document.getElementById('riskVolatility').textContent = `${(metrics.volatility * 100).toFixed(2)}%`;
+        document.getElementById('riskSharpe').textContent = metrics.sharpeRatio.toFixed(2);
+        document.getElementById('riskDrawdown').textContent = `${metrics.maxDrawdown.toFixed(2)}%`;
+        document.getElementById('riskBeta').textContent = metrics.beta.toFixed(2);
+        document.getElementById('riskAlpha').textContent = `${metrics.alpha.toFixed(2)}%`;
+    }
+    
+    hideRiskAnalysisModal() {
+        document.getElementById('riskAnalysisModal').style.display = 'none';
+    }
+    
+    showNotification(message, type = 'info') {
+        // Simple notification system
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#007bff'};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+    
+    // Alert System Functions
+    async loadAlerts() {
+        try {
+            const userId = 'demo_user';
+            const response = await fetch(`/api/alerts/${userId}`);
+            if (response.ok) {
+                this.alerts = await response.json();
+                this.updateAlertsDisplay();
+            }
+        } catch (error) {
+            console.error('Error loading alerts:', error);
+        }
+    }
+    
+    async loadNotifications() {
+        try {
+            const userId = 'demo_user';
+            const response = await fetch(`/api/notifications/${userId}`);
+            if (response.ok) {
+                this.notifications = await response.json();
+                this.unreadNotifications = this.notifications.filter(n => !n.read).length;
+                this.updateNotificationsDisplay();
+                this.updateNotificationBadge();
+            }
+        } catch (error) {
+            console.error('Error loading notifications:', error);
+        }
+    }
+    
+    updateAlertsDisplay() {
+        const container = document.getElementById('alertsContainer');
+        if (!container) {
+            console.log('Alert container not found, skipping display update');
+            return;
+        }
+        
+        container.innerHTML = '';
+        
+        if (this.alerts.length === 0) {
+            container.innerHTML = '<div class="no-alerts">Henüz bildirim yok</div>';
+            return;
+        }
+        
+        this.alerts.forEach(alert => {
+            const alertItem = document.createElement('div');
+            alertItem.className = 'alert-item';
+            
+            alertItem.innerHTML = `
+                <div class="alert-info">
+                    <div class="alert-symbol">${alert.symbol}</div>
+                    <div class="alert-type">${this.getAlertTypeName(alert.type)}</div>
+                    <div class="alert-message">${alert.message || this.generateAlertDescription(alert)}</div>
+                </div>
+                <div class="alert-status">
+                    <span class="status-badge status-${alert.status}">${alert.status}</span>
+                    <div class="alert-actions-buttons">
+                        ${alert.status === 'active' ? 
+                            `<button class="alert-action-btn pause" onclick="this.pauseAlert('${alert.id}')">Duraklat</button>` :
+                            `<button class="alert-action-btn resume" onclick="this.resumeAlert('${alert.id}')">Devam</button>`
+                        }
+                        <button class="alert-action-btn delete" onclick="this.deleteAlert('${alert.id}')">Sil</button>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(alertItem);
+        });
+    }
+    
+    updateNotificationsDisplay() {
+        const container = document.getElementById('notificationsContainer');
+        if (!container) {
+            console.log('Notification container not found, skipping display update');
+            return;
+        }
+        
+        container.innerHTML = '';
+        
+        if (this.notifications.length === 0) {
+            container.innerHTML = '<div class="no-notifications">Henüz bildirim yok</div>';
+            return;
+        }
+        
+        this.notifications.forEach(notification => {
+            const notificationItem = document.createElement('div');
+            notificationItem.className = 'notification-item';
+            
+            notificationItem.innerHTML = `
+                <div class="notification-info">
+                    <div class="notification-symbol">${notification.symbol}</div>
+                    <div class="notification-type">${this.getAlertTypeName(notification.type)}</div>
+                    <div class="notification-message">${notification.message}</div>
+                    <div class="notification-timestamp">${this.formatTimestamp(notification.timestamp)}</div>
+                </div>
+                <div class="notification-status">
+                    <span class="status-badge status-${notification.read ? 'read' : 'unread'}">
+                        ${notification.read ? 'Okundu' : 'Okunmadı'}
+                    </span>
+                </div>
+            `;
+            
+            if (!notification.read) {
+                notificationItem.addEventListener('click', () => this.markNotificationAsRead(notification.id));
+            }
+            
+            container.appendChild(notificationItem);
+        });
+    }
+    
+    updateNotificationBadge() {
+        const badge = document.querySelector('.notification-badge');
+        if (badge) {
+            badge.textContent = this.unreadNotifications;
+            badge.style.display = this.unreadNotifications > 0 ? 'flex' : 'none';
+        }
+    }
+    
+    getAlertTypeName(type) {
+        const types = {
+            'price_above': 'Fiyat Üstü',
+            'price_below': 'Fiyat Altı',
+            'volume_spike': 'Hacim Patlaması',
+            'technical_signal': 'Teknik Sinyal',
+            'news_alert': 'Haber Bildirimi'
+        };
+        return types[type] || type;
+    }
+    
+    generateAlertDescription(alert) {
+        const symbol = alert.symbol;
+        const condition = alert.condition;
+        const value = alert.value;
+        
+        switch (alert.type) {
+            case 'price_above':
+                return `Fiyat ${value} TL'nin üstüne çıktığında bildir`;
+            case 'price_below':
+                return `Fiyat ${value} TL'nin altına düştüğünde bildir`;
+            case 'volume_spike':
+                return `Hacim ${value}x normal hacim olduğunda bildir`;
+            case 'technical_signal':
+                return `Teknik sinyal: ${condition}`;
+            case 'news_alert':
+                return `Yeni haberler için bildir`;
+            default:
+                return 'Bildirim tetiklendi';
+        }
+    }
+    
+    formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+        
+        if (diff < 60000) return 'Az önce';
+        if (diff < 3600000) return `${Math.floor(diff / 60000)} dakika önce`;
+        if (diff < 86400000) return `${Math.floor(diff / 3600000)} saat önce`;
+        return date.toLocaleDateString('tr-TR');
+    }
+    
+    showCreateAlertModal() {
+        document.getElementById('createAlertModal').style.display = 'block';
+        
+        // Set current symbol if available
+        if (this.currentSymbol) {
+            document.getElementById('alertSymbol').value = this.currentSymbol;
+        }
+    }
+    
+    hideCreateAlertModal() {
+        document.getElementById('createAlertModal').style.display = 'none';
+        this.clearAlertForm();
+    }
+    
+    clearAlertForm() {
+        document.getElementById('alertSymbol').value = '';
+        document.getElementById('alertType').value = 'price_above';
+        document.getElementById('alertCondition').value = '>';
+        document.getElementById('alertValue').value = '';
+        document.getElementById('alertMessage').value = '';
+        document.getElementById('alertCooldown').value = '5';
+        document.getElementById('alertMaxTriggers').value = '1';
+        
+        // Hide technical group
+        document.getElementById('technicalGroup').style.display = 'none';
+    }
+    
+    handleAlertTypeChange(type) {
+        const conditionGroup = document.getElementById('conditionGroup');
+        const valueGroup = document.getElementById('valueGroup');
+        const technicalGroup = document.getElementById('technicalGroup');
+        
+        if (type === 'technical_signal') {
+            conditionGroup.style.display = 'none';
+            valueGroup.style.display = 'none';
+            technicalGroup.style.display = 'block';
+        } else if (type === 'news_alert') {
+            conditionGroup.style.display = 'none';
+            valueGroup.style.display = 'none';
+            technicalGroup.style.display = 'none';
+        } else {
+            conditionGroup.style.display = 'block';
+            valueGroup.style.display = 'block';
+            technicalGroup.style.display = 'none';
+        }
+    }
+    
+    async createAlert() {
+        const symbol = document.getElementById('alertSymbol').value.trim().toUpperCase();
+        const type = document.getElementById('alertType').value;
+        const condition = type === 'technical_signal' ? 
+            document.getElementById('technicalCondition').value : 
+            document.getElementById('alertCondition').value;
+        const value = type === 'technical_signal' || type === 'news_alert' ? 
+            0 : parseFloat(document.getElementById('alertValue').value);
+        const message = document.getElementById('alertMessage').value.trim();
+        
+        if (!symbol) {
+            alert('Lütfen hisse kodu girin.');
+            return;
+        }
+        
+        if ((type === 'price_above' || type === 'price_below') && !value) {
+            alert('Lütfen hedef değer girin.');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/alert/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: 'demo_user',
+                    symbol: symbol,
+                    type: type,
+                    condition: condition,
+                    value: value,
+                    message: message
+                })
+            });
+            
+            if (response.ok) {
+                const alert = await response.json();
+                this.alerts.push(alert);
+                this.updateAlertsDisplay();
+                this.hideCreateAlertModal();
+                this.showNotification('Bildirim oluşturuldu!', 'success');
+            } else {
+                const error = await response.json();
+                alert('Bildirim oluşturulamadı: ' + error.error);
+            }
+        } catch (error) {
+            console.error('Error creating alert:', error);
+            alert('Bildirim oluşturulurken hata oluştu.');
+        }
+    }
+    
+    async pauseAlert(alertId) {
+        try {
+            const response = await fetch(`/api/alert/${alertId}/pause`, { method: 'PUT' });
+            if (response.ok) {
+                const alert = this.alerts.find(a => a.id === alertId);
+                if (alert) alert.status = 'paused';
+                this.updateAlertsDisplay();
+                this.showNotification('Bildirim duraklatıldı', 'info');
+            }
+        } catch (error) {
+            console.error('Error pausing alert:', error);
+        }
+    }
+    
+    async resumeAlert(alertId) {
+        try {
+            const response = await fetch(`/api/alert/${alertId}/resume`, { method: 'PUT' });
+            if (response.ok) {
+                const alert = this.alerts.find(a => a.id === alertId);
+                if (alert) alert.status = 'active';
+                this.updateAlertsDisplay();
+                this.showNotification('Bildirim devam ettirildi', 'success');
+            }
+        } catch (error) {
+            console.error('Error resuming alert:', error);
+        }
+    }
+    
+    async deleteAlert(alertId) {
+        if (!confirm('Bu bildirimi silmek istediğinizden emin misiniz?')) return;
+        
+        try {
+            const response = await fetch(`/api/alert/${alertId}`, { method: 'DELETE' });
+            if (response.ok) {
+                this.alerts = this.alerts.filter(a => a.id !== alertId);
+                this.updateAlertsDisplay();
+                this.showNotification('Bildirim silindi', 'info');
+            }
+        } catch (error) {
+            console.error('Error deleting alert:', error);
+        }
+    }
+    
+    async markNotificationAsRead(notificationId) {
+        try {
+            const response = await fetch(`/api/notification/${notificationId}/read`, { method: 'PUT' });
+            if (response.ok) {
+                const notification = this.notifications.find(n => n.id === notificationId);
+                if (notification && !notification.read) {
+                    notification.read = true;
+                    this.unreadNotifications--;
+                    this.updateNotificationsDisplay();
+                    this.updateNotificationBadge();
+                }
+            }
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
+        }
+    }
+    
+    toggleAlertContent() {
+        const content = document.getElementById('alertContent');
+        const toggle = document.getElementById('alertToggle');
+        
+        if (content.classList.contains('active')) {
+            content.classList.remove('active');
+            toggle.innerHTML = '<i class="fas fa-chevron-down"></i>';
+        } else {
+            content.classList.add('active');
+            toggle.innerHTML = '<i class="fas fa-chevron-up"></i>';
+        }
+    }
+    
+    switchAlertTab(tabName) {
+        // Remove active class from all tabs and content
+        document.querySelectorAll('.alert-tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.alert-tab-content').forEach(content => content.classList.remove('active'));
+        
+        // Add active class to selected tab and content
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        document.getElementById(`${tabName}Tab`).classList.add('active');
+    }
+    
+    // Handle WebSocket alert messages
+    handleAlertMessage(data) {
+        if (data.type === 'alert') {
+            const notification = data.data;
+            this.notifications.unshift(notification);
+            if (!notification.read) {
+                this.unreadNotifications++;
+            }
+            
+            this.updateNotificationsDisplay();
+            this.updateNotificationBadge();
+            
+            // Show browser notification if permission granted
+            if (Notification.permission === 'granted') {
+                new Notification(notification.symbol, {
+                    body: notification.message,
+                    icon: '/favicon.ico'
+                });
+            }
+        }
+    }
+    
+    // Social Trading Functions (Placeholder)
+    showCreateTraderModal() {
+        console.log('Create trader modal - coming soon');
+    }
+    
+    toggleSocialContent() {
+        const content = document.getElementById('socialContent');
+        const toggle = document.getElementById('socialToggle');
+        
+        if (content.classList.contains('active')) {
+            content.classList.remove('active');
+            toggle.innerHTML = '<i class="fas fa-chevron-down"></i>';
+        } else {
+            content.classList.add('active');
+            toggle.innerHTML = '<i class="fas fa-chevron-up"></i>';
+        }
+    }
+    
+    switchSocialTab(tabName) {
+        document.querySelectorAll('.social-tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.social-tab-content').forEach(content => content.classList.remove('active'));
+        
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        document.getElementById(`${tabName}Tab`).classList.add('active');
+    }
+    
+    searchTraders() {
+        console.log('Search traders - coming soon');
+    }
+    
+    // Advanced Chart Functions
+    initializeAdvancedChart() {
+        try {
+            this.advancedChart = new AdvancedChart('stockChart', 'volumeChart');
+            console.log('Advanced chart initialized successfully');
+        } catch (error) {
+            console.error('Error initializing advanced chart:', error);
+        }
+    }
+    
+    updateAdvancedChart(symbol) {
+        if (this.advancedChart) {
+            this.advancedChart.loadChartData();
+        }
     }
     
     showStockLoadingState(symbol) {
@@ -527,18 +1501,10 @@ class TradeProApp {
     async loadChartData(symbol, period = '1wk') {
         try {
             const range = this.getRangeFromPeriod(period);
-            const headers = {};
-            if (this.token) {
-                headers['Authorization'] = `Bearer ${this.token}`;
-            }
             
-            const response = await fetch(`${this.apiBaseUrl}/chart/${symbol}?range=${range}`, { headers });
+            const response = await fetch(`${this.apiBaseUrl}/chart/${symbol}?range=${range}`);
             
             if (!response.ok) {
-                if (response.status === 401) {
-                    this.logout();
-                    return;
-                }
                 throw new Error('Failed to fetch chart data');
             }
             
@@ -562,10 +1528,29 @@ class TradeProApp {
     }
     
     updateChart(data, period) {
-        const ctx = document.getElementById('stockChart').getContext('2d');
+        const canvas = document.getElementById('stockChart');
+        if (!canvas) {
+            console.error('Chart canvas not found');
+            return;
+        }
+        
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js not loaded');
+            this.showChartError('Chart.js yüklenemedi');
+            return;
+        }
+        
+        const ctx = canvas.getContext('2d');
         
         if (this.chart) {
             this.chart.destroy();
+        }
+        
+        // Validate chart data
+        if (!data.timestamps || !data.close || data.timestamps.length === 0) {
+            console.error('Invalid chart data:', data);
+            this.showChartError('Geçersiz grafik verisi');
+            return;
         }
         
         const labels = data.timestamps.map(timestamp => {
@@ -582,14 +1567,20 @@ class TradeProApp {
         const stock = this.stockData[this.currentSymbol];
         const currency = stock?.currency || 'USD';
         
+        try {
         if (this.chartType === 'candlestick') {
             this.createCandlestickChart(ctx, labels, data, currency);
         } else {
             this.createLineChart(ctx, labels, data, currency);
+            }
+        } catch (error) {
+            console.error('Chart creation error:', error);
+            this.showChartError('Grafik oluşturulamadı');
         }
     }
     
     createLineChart(ctx, labels, data, currency) {
+        try {
         this.chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -647,11 +1638,16 @@ class TradeProApp {
                 }
             }
         });
+        } catch (error) {
+            console.error('Line chart creation error:', error);
+            throw error;
+        }
     }
     
     createCandlestickChart(ctx, labels, data, currency) {
-        // Create candlestick data
-        const candlestickData = data.timestamps.map((timestamp, index) => ({
+        try {
+            // Create candlestick data
+            const candlestickData = data.timestamps.map((timestamp, index) => ({
             x: labels[index],
             o: data.open[index] || data.close[index],
             h: data.high[index] || data.close[index],
@@ -722,6 +1718,10 @@ class TradeProApp {
                 }
             }
         });
+        } catch (error) {
+            console.error('Candlestick chart creation error:', error);
+            throw error;
+        }
     }
     
     showChartError(message) {
@@ -746,17 +1746,8 @@ class TradeProApp {
             params.append('minVolume', filters.minVolume || '0');
             params.append('recommendation', filters.recommendation || 'all');
             
-            const headers = {};
-            if (this.token) {
-                headers['Authorization'] = `Bearer ${this.token}`;
-            }
-            
-            const response = await fetch(`${this.apiBaseUrl}/screener?${params}`, { headers });
+            const response = await fetch(`${this.apiBaseUrl}/screener?${params}`);
             if (!response.ok) {
-                if (response.status === 401) {
-                    this.logout();
-                    return;
-                }
                 throw new Error('Failed to fetch screener data');
             }
             
@@ -765,12 +1756,19 @@ class TradeProApp {
             
         } catch (error) {
             console.error('Error loading screener data:', error);
+            this.showScreenerError('Screener verisi yüklenemedi');
         }
     }
     
     updateScreener(data) {
         const container = document.getElementById('screenerContainer');
         container.innerHTML = '';
+        
+        if (!data || !Array.isArray(data)) {
+            console.error('Invalid screener data:', data);
+            this.showScreenerError('Geçersiz screener verisi');
+            return;
+        }
         
         if (data.length === 0) {
             container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">Filtrelere uygun hisse bulunamadı</div>';
@@ -830,107 +1828,72 @@ class TradeProApp {
         this.showNotification('Filtreler uygulandı', 'success');
     }
     
+    showScreenerError(message) {
+        const container = document.getElementById('screenerContainer');
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; height: 100px; color: #ff4444;">
+                <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                ${message}
+            </div>
+        `;
+    }
+    
     async loadNews() {
-        try {
-            const headers = {};
-            if (this.token) {
-                headers['Authorization'] = `Bearer ${this.token}`;
-            }
-            
-            const response = await fetch(`${this.apiBaseUrl}/news`, { headers });
-            if (!response.ok) {
-                if (response.status === 401) {
-                    this.logout();
-                    return;
+        // Load news for the currently selected stock
+        if (this.currentSymbol) {
+            try {
+                // Load TradingView news for the selected stock
+                const response = await fetch(`${this.apiBaseUrl}/news/tradingview?symbol=${this.currentSymbol}`);
+                if (response.ok) {
+                    const tradingViewNews = await response.json();
+                    this.updateNews(tradingViewNews);
                 }
-                throw new Error('Failed to fetch news');
+            } catch (error) {
+                console.error('Error loading TradingView news:', error);
             }
-            
-            const news = await response.json();
-            this.updateNews(news);
-            
-        } catch (error) {
-            console.error('Error loading news:', error);
         }
-    }
-    
-    async loadCompanyNews(symbol) {
-        try {
-            const headers = {};
-            if (this.token) {
-                headers['Authorization'] = `Bearer ${this.token}`;
-            }
-            
-            const response = await fetch(`${this.apiBaseUrl}/news/${symbol}`, { headers });
-            if (!response.ok) {
-                if (response.status === 401) {
-                    this.logout();
-                    return;
-                }
-                throw new Error('Failed to fetch company news');
-            }
-            
-            const companyNews = await response.json();
-            this.updateCompanyNews(companyNews);
-            
-        } catch (error) {
-            console.error('Error loading company news:', error);
-        }
-    }
-    
-    updateCompanyNews(news) {
-        const container = document.getElementById('companyNewsContainer');
-        container.innerHTML = '';
-        
-        if (news.length === 0) {
-            container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">Bu şirket için haber bulunamadı</div>';
-            return;
-        }
-        
-        news.forEach(item => {
-            const newsItem = document.createElement('div');
-            newsItem.className = 'company-news-item';
-            newsItem.innerHTML = `
-                <div class="company-news-text">${item.text}</div>
-                <div class="company-news-time">${item.time}</div>
-            `;
-            
-            if (item.url) {
-                newsItem.addEventListener('click', () => {
-                    window.open(item.url, '_blank');
-                });
-            }
-            
-            container.appendChild(newsItem);
-        });
     }
     
     updateNews(news) {
-        const container = document.getElementById('newsContainer');
-        container.innerHTML = '';
+        const newsContainer = document.getElementById('newsContainer');
+        if (!newsContainer) return;
         
-        news.forEach(item => {
-            const newsItem = document.createElement('div');
-            newsItem.className = 'news-item';
-            newsItem.innerHTML = `
-                <div class="news-text">${item.text}</div>
-                <div class="news-time">${item.time}</div>
-            `;
-            
-            if (item.url) {
-                newsItem.addEventListener('click', () => {
-                    window.open(item.url, '_blank');
-                });
-            }
-            
-            container.appendChild(newsItem);
+        if (!news || news.length === 0) {
+            newsContainer.innerHTML = '<div class="empty-state">Haber bulunamadı</div>';
+            return;
+        }
+        
+        newsContainer.innerHTML = news.slice(0, 5).map(item => `
+            <div class="news-item">
+                <div class="news-content">
+                    <div class="news-text">${item.text}</div>
+                    <div class="news-meta">
+                        <span class="news-time">${item.time}</span>
+                        <span class="news-source">${item.source}</span>
+                        ${item.url && item.url !== '#' ? `<a href="${item.url}" target="_blank" class="news-link"><i class="fas fa-external-link-alt"></i></a>` : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        // Add click listeners to news items
+        document.querySelectorAll('.news-item').forEach(item => {
+            item.addEventListener('click', () => {
+                item.style.backgroundColor = '#2a2a2a';
+                setTimeout(() => {
+                    item.style.backgroundColor = '';
+                }, 200);
+            });
         });
     }
+    
+    
+    
     
     async handleSearch(query) {
         if (!query || query.trim().length === 0) {
             this.hideSearchResults();
-            return;
+                    return;
         }
         
         const trimmedQuery = query.trim();
@@ -954,7 +1917,7 @@ class TradeProApp {
             const response = await fetch(`${this.apiBaseUrl}/search?q=${encodeURIComponent(trimmedQuery)}`, { headers });
             if (!response.ok) {
                 if (response.status === 401) {
-                    this.logout();
+                    console.error('Unauthorized access');
                     return;
                 }
                 throw new Error('Search failed');
@@ -1009,9 +1972,21 @@ class TradeProApp {
                 <span class="search-change ${stock.changePercent >= 0 ? 'positive' : 'negative'}">
                     ${stock.changePercent >= 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%
                 </span>
+                <button class="add-to-watchlist-btn" title="Takip listesine ekle">
+                    <i class="fas fa-plus"></i>
+                </button>
             `;
             
-            item.addEventListener('click', async () => {
+            item.addEventListener('click', async (e) => {
+                // Don't trigger if clicking the add button
+                if (e.target.closest('.add-to-watchlist-btn')) {
+                    e.stopPropagation();
+                    this.addToWatchlist(stock.symbol);
+                    this.hideSearchResults();
+                    document.querySelector('.search-input').value = '';
+                    return;
+                }
+                
                 await this.selectStock(stock.symbol);
                 this.hideSearchResults();
                 document.querySelector('.search-input').value = '';
@@ -1098,7 +2073,7 @@ class TradeProApp {
     handleModalLocalSearch(query) {
         if (!query || query.trim().length === 0) {
             document.getElementById('modalSearchResults').innerHTML = '';
-            return;
+                    return;
         }
         
         const queryLower = query.toLowerCase();
@@ -1164,7 +2139,7 @@ class TradeProApp {
             const response = await fetch(`${this.apiBaseUrl}/search?q=${encodeURIComponent(trimmedQuery)}`, { headers });
             if (!response.ok) {
                 if (response.status === 401) {
-                    this.logout();
+                    console.error('Unauthorized access');
                     return;
                 }
                 throw new Error('Search failed');
@@ -1270,8 +2245,8 @@ class TradeProApp {
         
         // Update display immediately if we have data for this symbol
         if (this.stockData[symbol]) {
-            this.updateStockDisplay();
-            this.updateTechnicalAnalysis();
+        this.updateStockDisplay();
+        this.updateTechnicalAnalysis();
         } else {
             // Show loading state for the selected stock
             this.showStockLoadingState(symbol);
@@ -1288,7 +2263,12 @@ class TradeProApp {
         }
         
         this.loadChartData(symbol);
-        this.loadCompanyNews(symbol);
+        
+        // Update advanced chart
+        this.updateAdvancedChart(symbol);
+        
+        // Load TradingView news for the selected stock
+        this.loadNews();
     }
     
     addToWatchlist(symbol) {
@@ -1355,30 +2335,6 @@ class TradeProApp {
         }, 30000);
     }
     
-    // Theme Management
-    loadTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            this.currentTheme = savedTheme;
-        }
-        
-        document.documentElement.setAttribute('data-theme', this.currentTheme);
-        
-        const themeIcon = document.querySelector('#themeToggle i');
-        if (themeIcon) {
-            themeIcon.className = this.currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
-        }
-    }
-    
-    toggleTheme() {
-        this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', this.currentTheme);
-        
-        const themeIcon = document.querySelector('#themeToggle i');
-        themeIcon.className = this.currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
-        
-        localStorage.setItem('theme', this.currentTheme);
-    }
     
     
     // Alarm Management
@@ -1560,9 +2516,13 @@ class TradeProApp {
     }
     
     hideLoadingScreen() {
+        console.log('🔄 Attempting to hide loading screen...');
         const loadingScreen = document.getElementById('loadingScreen');
         const mainApp = document.getElementById('mainApp');
         const progressBar = document.getElementById('progressBar');
+        
+        console.log('Loading screen element:', loadingScreen);
+        console.log('Main app element:', mainApp);
         
         if (loadingScreen && mainApp) {
             // Complete progress bar
@@ -1575,16 +2535,10 @@ class TradeProApp {
                 clearInterval(this.progressInterval);
             }
             
-            // Hide loading screen and show main app
-            setTimeout(() => {
-                loadingScreen.classList.add('hidden');
-                mainApp.style.display = 'block';
-                
-                // Remove loading screen from DOM after animation
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 500);
-            }, 500);
+            // Hide loading screen and show main app immediately
+            loadingScreen.style.display = 'none';
+            mainApp.style.display = 'block';
+            console.log('✅ Loading screen hidden, main app shown');
         }
     }
     
@@ -1603,232 +2557,7 @@ class TradeProApp {
         }
     }
     
-    logout() {
-        this.user = null;
-        this.token = null;
-        this.userId = 'demo-user';
-        
-        // Clear localStorage
-        localStorage.removeItem('tradepro_token');
-        localStorage.removeItem('tradepro_user');
-        
-        // Show authentication screen
-        this.showAuthScreen();
-        this.showNotification('Çıkış yapıldı', 'info');
-    }
     
-    // Authentication Screen Methods
-    showAuthScreen() {
-        const authScreen = document.getElementById('authScreen');
-        const mainApp = document.getElementById('mainApp');
-        
-        if (authScreen && mainApp) {
-            authScreen.style.display = 'flex';
-            mainApp.style.display = 'none';
-        }
-    }
-    
-    hideAuthScreen() {
-        const authScreen = document.getElementById('authScreen');
-        const mainApp = document.getElementById('mainApp');
-        
-        if (authScreen && mainApp) {
-            authScreen.classList.add('hidden');
-            setTimeout(() => {
-                authScreen.style.display = 'none';
-                mainApp.style.display = 'block';
-            }, 500);
-        }
-    }
-    
-    switchAuthTab(tab) {
-        const loginTab = document.getElementById('loginTab');
-        const registerTab = document.getElementById('registerTab');
-        const loginFormContainer = document.getElementById('loginFormContainer');
-        const registerFormContainer = document.getElementById('registerFormContainer');
-        
-        if (tab === 'login') {
-            loginTab.classList.add('active');
-            registerTab.classList.remove('active');
-            loginFormContainer.style.display = 'block';
-            registerFormContainer.style.display = 'none';
-        } else {
-            registerTab.classList.add('active');
-            loginTab.classList.remove('active');
-            registerFormContainer.style.display = 'block';
-            loginFormContainer.style.display = 'none';
-        }
-    }
-    
-    async handleAuthLogin(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('authLoginEmail').value;
-        const password = document.getElementById('authLoginPassword').value;
-        
-        const submitBtn = e.target.querySelector('.auth-submit-btn');
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Giriş yapılıyor...';
-        
-        try {
-            const response = await fetch(`${this.apiBaseUrl}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
-            
-            const data = await response.json();
-            
-            if (response.ok) {
-                this.user = data.user;
-                this.token = data.token;
-                this.userId = data.user.id;
-                
-                // Store token in localStorage
-                localStorage.setItem('tradepro_token', this.token);
-                localStorage.setItem('tradepro_user', JSON.stringify(this.user));
-                
-                this.updateAuthUI();
-                this.hideAuthScreen();
-                
-                // Initialize app after successful login
-                this.connectWebSocket();
-                this.showLoadingScreen();
-                
-                try {
-                    await this.loadInitialData();
-                    await this.loadAlarms();
-                    await this.loadCompanyNews(this.currentSymbol);
-                    this.startPeriodicUpdates();
-                    
-                    setTimeout(() => {
-                        this.hideLoadingScreen();
-                    }, 1500);
-                    
-                } catch (error) {
-                    console.error('Error during post-login initialization:', error);
-                    this.hideLoadingScreen();
-                }
-                
-                this.showNotification('Giriş başarılı!', 'success');
-            } else {
-                this.showAuthNotification(data.error, 'error');
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            this.showAuthNotification('Giriş yapılırken hata oluştu', 'error');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
-        }
-    }
-    
-    async handleAuthRegister(e) {
-        e.preventDefault();
-        
-        const username = document.getElementById('authRegisterUsername').value;
-        const email = document.getElementById('authRegisterEmail').value;
-        const password = document.getElementById('authRegisterPassword').value;
-        const confirmPassword = document.getElementById('authConfirmPassword').value;
-        
-        if (password !== confirmPassword) {
-            this.showAuthNotification('Şifreler eşleşmiyor', 'error');
-            return;
-        }
-        
-        const submitBtn = e.target.querySelector('.auth-submit-btn');
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Kayıt olunuyor...';
-        
-        try {
-            const response = await fetch(`${this.apiBaseUrl}/auth/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, email, password })
-            });
-            
-            const data = await response.json();
-            
-            if (response.ok) {
-                this.user = data.user;
-                this.token = data.token;
-                this.userId = data.user.id;
-                
-                // Store token in localStorage
-                localStorage.setItem('tradepro_token', this.token);
-                localStorage.setItem('tradepro_user', JSON.stringify(this.user));
-                
-                this.updateAuthUI();
-                this.hideAuthScreen();
-                
-                // Initialize app after successful registration
-                this.connectWebSocket();
-                this.showLoadingScreen();
-                
-                try {
-                    await this.loadInitialData();
-                    await this.loadAlarms();
-                    await this.loadCompanyNews(this.currentSymbol);
-                    this.startPeriodicUpdates();
-                    
-                    setTimeout(() => {
-                        this.hideLoadingScreen();
-                    }, 1500);
-                    
-                } catch (error) {
-                    console.error('Error during post-registration initialization:', error);
-                    this.hideLoadingScreen();
-                }
-                
-                this.showNotification('Kayıt başarılı!', 'success');
-            } else {
-                this.showAuthNotification(data.error, 'error');
-            }
-        } catch (error) {
-            console.error('Register error:', error);
-            this.showAuthNotification('Kayıt olurken hata oluştu', 'error');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
-        }
-    }
-    
-    showAuthNotification(message, type = 'info') {
-        // Create notification element for auth screen
-        const notification = document.createElement('div');
-        notification.className = `auth-notification auth-notification-${type}`;
-        notification.textContent = message;
-        notification.style.cssText = `
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 20px;
-            border-radius: var(--border-radius);
-            color: white;
-            font-weight: 600;
-            z-index: 10001;
-            transition: var(--transition);
-            background-color: ${type === 'success' ? 'var(--success-color)' : 
-                             type === 'error' ? 'var(--error-color)' : 
-                             'var(--primary-color)'};
-        `;
-        
-        const authContainer = document.querySelector('.auth-container');
-        authContainer.style.position = 'relative';
-        authContainer.appendChild(notification);
-        
-        // Remove after 3 seconds
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-    }
     
     async loadUserData() {
         if (!this.token) return;

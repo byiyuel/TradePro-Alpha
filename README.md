@@ -16,6 +16,13 @@
 * 📈 **Teknik Analiz Araçları**: RSI, MACD, Bollinger Bands
 * 🌍 **9 Borsa Entegrasyonu**: Küresel erişim
 * 📱 **Responsive Tasarım**: Mobil ve masaüstü uyumlu
+* 📰 **Canlı Finansal Haberler**: RSS feed'lerden gerçek haberler
+* 🔧 **Hisse Screener**: Gelişmiş filtreleme ve analiz
+* 📊 **Optimized Performance**: 30 dakika cache sistemi
+* 🔔 **Akıllı Bildirimler**: Fiyat ve teknik sinyal uyarıları
+* 👥 **Sosyal Trading**: Trader takibi ve liderlik tablosu
+* 💼 **Portföy Yönetimi**: Çoklu portföy ve risk analizi
+* 🎨 **Premium UI**: Modern ve profesyonel arayüz
 
 ---
 
@@ -55,7 +62,7 @@ http://localhost:3000
 
 * **Global Hisse Arama**: 9 borsa desteği
 * **Anlık Sonuçlar**: Yazarken eşzamanlı arama
-* **Cache Sistemi**: 5 dakika hızlı cache
+* **Cache Sistemi**: 30 dakika optimize edilmiş cache
 
 ### 📈 Teknik Analiz
 
@@ -67,9 +74,55 @@ http://localhost:3000
 ### ⚡ Gerçek Zamanlı Veriler
 
 * Yahoo Finance API entegrasyonu
-* WebSocket ile 30 saniyede bir güncelleme
+* WebSocket ile 1 dakikada bir güncelleme (optimized)
 * TRY ve USD desteği
 * 139 hisse için sürekli veri akışı
+
+### 📰 Canlı Finansal Haberler
+
+* RSS feed'lerden gerçek finansal haberler
+* Yahoo Finance, MarketWatch, Bloomberg entegrasyonu
+* Şirket ve piyasa haberleri ayrımı
+* 30 dakika cache sistemi ile optimize edilmiş performans
+
+### 🔧 Hisse Screener
+
+* Gelişmiş filtreleme sistemi
+* Fiyat, hacim, değişim oranı filtreleri
+* Teknik analiz göstergelerine göre sıralama
+* Gerçek zamanlı verilerle güncellenen liste
+
+### 🔔 Akıllı Bildirimler
+
+* Fiyat seviyesi uyarıları (üst/alt)
+* Teknik sinyal bildirimleri (RSI, MACD)
+* Hacim patlaması uyarıları
+* Özelleştirilebilir bildirim kuralları
+* Gerçek zamanlı push bildirimleri
+
+### 👥 Sosyal Trading
+
+* Trader takip sistemi
+* Liderlik tablosu ve performans sıralaması
+* Sosyal trading akışı
+* Trader arama ve filtreleme
+* Performans istatistikleri
+
+### 💼 Portföy Yönetimi
+
+* Çoklu portföy desteği
+* Gerçek zamanlı portföy değeri
+* Risk analizi ve metrikleri
+* Alım/satım işlemleri
+* Performans takibi ve raporlama
+
+### 🎨 Premium UI/UX
+
+* Modern ve profesyonel tasarım
+* Responsive grid layout sistemi
+* Smooth animasyonlar ve geçişler
+* Dark theme optimizasyonu
+* Touch-friendly mobil arayüz
 
 ---
 
@@ -109,6 +162,42 @@ http://localhost:3000
 3. Teknik göstergeleri inceleyin
 4. AL/SAT/BEKLE sinyallerini takip edin
 
+### 📰 Haber Sistemi
+
+1. Ana sayfada seçili hisse haberleri görünür
+2. "Haberler" butonuna tıklayarak tüm haberleri görün
+3. Şirket, piyasa ve finansal haberleri filtreleyin
+4. RSS feed'lerden gerçek zamanlı haberler
+
+### 🔧 Hisse Screener
+
+1. Sol panelden "Screener" sekmesine geçin
+2. Fiyat, hacim, değişim oranı filtrelerini ayarlayın
+3. Teknik göstergelere göre sıralayın
+4. İstediğiniz hisseyi tıklayarak analiz edin
+
+### 🔔 Bildirimler
+
+1. Navbar'daki "Bildirimler" butonuna tıklayın
+2. "Yeni Bildirim" ile özel uyarılar oluşturun
+3. Fiyat, hacim veya teknik sinyal kuralları belirleyin
+4. Bildirimlerinizi gerçek zamanlı takip edin
+
+### 👥 Sosyal Trading
+
+1. Navbar'daki "Sosyal Trading" butonuna tıklayın
+2. "Akış" sekmesinde trader aktivitelerini görün
+3. "Liderlik" sekmesinde en iyi traderları inceleyin
+4. "Traderlar" sekmesinde trader arama yapın
+
+### 💼 Portföy Yönetimi
+
+1. Navbar'daki "Portföy" butonuna tıklayın
+2. "Yeni Portföy" ile portföy oluşturun
+3. Portföy seçerek pozisyonlarınızı görün
+4. "Al/Sat" butonları ile işlem yapın
+5. "Risk Analizi" ile portföy riskinizi değerlendirin
+
 ---
 
 ## 🔧 Teknik Detaylar
@@ -119,20 +208,38 @@ http://localhost:3000
 * WebSocket (real-time)
 * SQLite veritabanı
 * Yahoo Finance API
-* 5 dakikalık cache sistemi
+* NewsAPI entegrasyonu
+* RSS feed parsing
+* 30 dakikalık cache sistemi (optimized)
 
 ### Frontend
 
-* HTML5, CSS3, JavaScript
+* HTML5, CSS3, JavaScript (ES6+)
 * Chart.js grafikler
-* Responsive tasarım
+* Premium CSS Grid Layout sistemi
+* Responsive tasarım (mobile-first)
 * Optimize edilmiş arama (500ms debounce)
+* Hisse screener arayüzü
+* Canlı haber akışı
+* Navbar dropdown sistemi
+* Touch-friendly arayüz
+* Smooth animasyonlar ve geçişler
 
 ### API Endpoints
 
 * `GET /api/stocks` → Tüm hisse verileri
 * `GET /api/search?q=query` → Canlı arama
 * `GET /api/chart/:symbol` → Grafik verisi
+* `GET /api/news/companies` → Şirket haberleri
+* `GET /api/news/market` → Piyasa haberleri
+* `GET /api/news/tradingview` → Finansal haberler (RSS)
+* `GET /api/screener` → Hisse screener verileri
+* `GET /api/alerts` → Kullanıcı bildirimleri
+* `POST /api/alerts` → Yeni bildirim oluşturma
+* `GET /api/portfolios` → Portföy listesi
+* `POST /api/portfolios` → Yeni portföy oluşturma
+* `GET /api/social/traders` → Trader listesi
+* `GET /api/social/leaderboard` → Liderlik tablosu
 * `GET /api/health` → Sistem durumu
 * `WebSocket ws://localhost:3000` → Canlı veri
 
@@ -144,10 +251,13 @@ http://localhost:3000
 
 | Sorun                    | Çözüm                                            |
 | ------------------------ | ------------------------------------------------ |
-| **Port 3000 kullanımda** | `taskkill /f /im node.exe` ile Node.js’i kapatın |
+| **Port 3000 kullanımda** | `taskkill /f /im node.exe` ile Node.js'i kapatın |
 | **Veri gelmiyor**        | İnternet ve API bağlantısını kontrol edin        |
 | **Grafik yüklenmiyor**   | Chart.js erişimini kontrol edin                  |
 | **Arama çalışmıyor**     | En az 3 karakter girildiğinden emin olun         |
+| **Dropdown açılmıyor**   | JavaScript konsol hatalarını kontrol edin        |
+| **Mobil görünüm bozuk**  | Tarayıcı cache'ini temizleyin                     |
+| **Bildirimler çalışmıyor** | Tarayıcı bildirim izinlerini kontrol edin       |
 
 ### 🔧 Debug Komutları
 
@@ -160,7 +270,49 @@ node --version
 
 # Bağımlılıkları yeniden yükle
 npm install
+
+# Server loglarını kontrol et
+curl http://localhost:3000/api/health
+
+# Haber API'lerini test et
+curl http://localhost:3000/api/news/tradingview
+curl http://localhost:3000/api/news/companies
 ```
+
+---
+
+## 🆕 Son Güncellemeler
+
+### v3.0.0 - Premium UI & Yeni Özellikler
+
+* ✅ **Premium UI/UX**: Modern ve profesyonel arayüz tasarımı
+* ✅ **Navbar Dropdown Sistemi**: Bildirimler, Sosyal Trading, Portföy
+* ✅ **Akıllı Bildirimler**: Fiyat ve teknik sinyal uyarıları
+* ✅ **Sosyal Trading**: Trader takibi ve liderlik tablosu
+* ✅ **Portföy Yönetimi**: Çoklu portföy ve risk analizi
+* ✅ **Responsive Grid Layout**: Tüm ekran boyutları için optimize
+* ✅ **Touch-Friendly**: Mobil cihazlar için dokunma optimizasyonu
+* ✅ **Smooth Animations**: Premium geçiş efektleri
+* ✅ **Error Handling**: Gelişmiş JavaScript hata yakalama
+* ✅ **Performance**: Optimize edilmiş DOM manipülasyonu
+
+### v2.1.0 - Haber Sistemi & Performans İyileştirmeleri
+
+* ✅ **Canlı Finansal Haberler**: RSS feed'lerden gerçek haberler
+* ✅ **Hisse Screener**: Gelişmiş filtreleme sistemi
+* ✅ **Performans Optimizasyonu**: 30 dakika cache sistemi
+* ✅ **WebSocket İyileştirmeleri**: 1 dakika update interval
+* ✅ **Error Handling**: Gelişmiş hata yakalama ve logging
+* ✅ **API Entegrasyonu**: NewsAPI ve RSS feed desteği
+* ✅ **Authentication Removal**: Giriş sistemi kaldırıldı
+* ✅ **News Page**: Ayrı haber sayfası eklendi
+
+### v2.0.0 - Temel Özellikler
+
+* ✅ **139 Hisse Desteği**: BIST, NASDAQ, NYSE
+* ✅ **Canlı Arama**: 9 borsa entegrasyonu
+* ✅ **Teknik Analiz**: RSI, MACD, Bollinger Bands
+* ✅ **Real-time Data**: WebSocket ile anlık güncellemeler
 
 ---
 

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TradePro - Advanced Trading Platform</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/premium-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -24,88 +24,141 @@
         </div>
     </div>
 
-    <!-- Authentication Screen -->
-    <div class="auth-screen" id="authScreen">
-        <div class="auth-container">
-            <div class="auth-logo">
-                <h1><i class="fas fa-chart-line"></i> TradePro</h1>
-                <p class="auth-subtitle">Finansal Piyasa Analizi</p>
-            </div>
-            
-            <div class="auth-tabs">
-                <button class="auth-tab active" id="loginTab">Giriş Yap</button>
-                <button class="auth-tab" id="registerTab">Kayıt Ol</button>
-            </div>
-            
-            <!-- Login Form -->
-            <div class="auth-form-container" id="loginFormContainer">
-                <form class="auth-form" id="authLoginForm">
-                    <div class="form-group">
-                        <label for="authLoginEmail">E-posta:</label>
-                        <input type="email" id="authLoginEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="authLoginPassword">Şifre:</label>
-                        <input type="password" id="authLoginPassword" required>
-                    </div>
-                    <button type="submit" class="auth-submit-btn">Giriş Yap</button>
-                </form>
-            </div>
-            
-            <!-- Register Form -->
-            <div class="auth-form-container" id="registerFormContainer" style="display: none;">
-                <form class="auth-form" id="authRegisterForm">
-                    <div class="form-group">
-                        <label for="authRegisterUsername">Kullanıcı Adı:</label>
-                        <input type="text" id="authRegisterUsername" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="authRegisterEmail">E-posta:</label>
-                        <input type="email" id="authRegisterEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="authRegisterPassword">Şifre:</label>
-                        <input type="password" id="authRegisterPassword" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="authConfirmPassword">Şifre Tekrar:</label>
-                        <input type="password" id="authConfirmPassword" required>
-                    </div>
-                    <button type="submit" class="auth-submit-btn">Kayıt Ol</button>
-                </form>
-            </div>
-            
-            <div class="auth-footer">
-                <p>TradePro'ya giriş yaparak finansal piyasa analizlerine erişebilirsiniz.</p>
-            </div>
-        </div>
-    </div>
-
+    <!-- Main App -->
     <div class="app-container" id="mainApp" style="display: none;">
         <!-- Header -->
         <header class="header">
             <div class="header-content">
-                <div class="logo">
-                    <h1><i class="fas fa-chart-line"></i> TradePro</h1>
-                </div>
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Hisse ara (örn: Apple, ASELS, Tesla)">
-                    <i class="fas fa-search search-icon"></i>
-                    <div class="search-dropdown"></div>
-                </div>
-                <div class="header-controls">
-                    <div class="user-info">
-                        <div class="user-avatar" id="userAvatar">U</div>
-                        <span id="userName">Kullanıcı</span>
-                        <button class="logout-btn" id="logoutBtn">Çıkış</button>
+                <div class="header-left">
+                    <div class="logo">
+                        <h1><i class="fas fa-chart-line"></i> TradePro</h1>
                     </div>
-                    <button class="theme-toggle" id="themeToggle" title="Tema Değiştir">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <div class="last-update">
-                        <i class="fas fa-sync-alt"></i>
-                        <span id="lastUpdate">Bağlanıyor...</span>
+                </div>
+                <div class="header-center">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Hisse ara (örn: Apple, ASELS, Tesla)">
+                        <i class="fas fa-search search-icon"></i>
+                        <div class="search-dropdown"></div>
                     </div>
+                </div>
+                <div class="header-right">
+                    <nav class="header-nav">
+                        <a href="news.html" class="nav-link news-nav-btn">
+                            <i class="fas fa-newspaper"></i> Haberler
+                        </a>
+                        
+                        <!-- Notifications Dropdown -->
+                        <div class="nav-dropdown">
+                            <button class="nav-link dropdown-toggle" id="notificationsBtn">
+                                <i class="fas fa-bell"></i> Bildirimler
+                                <span class="notification-badge" id="notificationBadge">0</span>
+                            </button>
+                            <div class="dropdown-content" id="notificationsDropdown">
+                                <div class="dropdown-header">
+                                    <h3>Bildirimler</h3>
+                                    <button class="create-alert-btn" id="createAlertBtn">
+                                        <i class="fas fa-plus"></i> Yeni Bildirim
+                                    </button>
+                                </div>
+                                <div class="notifications-container" id="notificationsContainer">
+                                    <!-- Dynamic notifications will be added here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Social Trading Dropdown -->
+                        <div class="nav-dropdown">
+                            <button class="nav-link dropdown-toggle" id="socialTradingBtn">
+                                <i class="fas fa-users"></i> Sosyal Trading
+                            </button>
+                            <div class="dropdown-content" id="socialTradingDropdown">
+                                <div class="dropdown-header">
+                                    <h3>Sosyal Trading</h3>
+                                    <button class="create-trader-btn" id="createTraderBtn">
+                                        <i class="fas fa-user-plus"></i> Trader Ol
+                                    </button>
+                                </div>
+                                <div class="social-tabs">
+                                    <button class="social-tab-btn active" data-tab="feed">Akış</button>
+                                    <button class="social-tab-btn" data-tab="leaderboard">Liderlik</button>
+                                    <button class="social-tab-btn" data-tab="traders">Traderlar</button>
+                                </div>
+                                <div class="social-tab-content active" id="feedTab">
+                                    <div class="social-feed-container" id="socialFeedContainer">
+                                        <!-- Dynamic social feed will be added here -->
+                                    </div>
+                                </div>
+                                <div class="social-tab-content" id="leaderboardTab">
+                                    <div class="leaderboard-container" id="leaderboardContainer">
+                                        <!-- Dynamic leaderboard will be added here -->
+                                    </div>
+                                </div>
+                                <div class="social-tab-content" id="tradersTab">
+                                    <div class="traders-search">
+                                        <input type="text" id="traderSearchInput" placeholder="Trader ara...">
+                                        <button id="searchTradersBtn">Ara</button>
+                                    </div>
+                                    <div class="traders-container" id="tradersContainer">
+                                        <!-- Dynamic traders will be added here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Portfolio Dropdown -->
+                        <div class="nav-dropdown">
+                            <button class="nav-link dropdown-toggle" id="portfolioBtn">
+                                <i class="fas fa-briefcase"></i> Portföy
+                            </button>
+                            <div class="dropdown-content" id="portfolioDropdownContent">
+                                <div class="dropdown-header">
+                                    <h3>Portföy</h3>
+                                    <button class="create-portfolio-btn" id="createPortfolioBtn">
+                                        <i class="fas fa-plus"></i> Yeni Portföy
+                                    </button>
+                                </div>
+                                <div class="portfolio-selector">
+                                    <select class="portfolio-dropdown" id="portfolioDropdown">
+                                        <option value="">Portföy Seçin</option>
+                                    </select>
+                                </div>
+                                <div class="portfolio-summary" id="portfolioSummary" style="display: none;">
+                                    <div class="summary-cards">
+                                        <div class="summary-card">
+                                            <h4>Toplam Değer</h4>
+                                            <div class="summary-value" id="totalValue">$0.00</div>
+                                        </div>
+                                        <div class="summary-card">
+                                            <h4>Günlük Kazanç</h4>
+                                            <div class="summary-value" id="dailyReturn">$0.00</div>
+                                        </div>
+                                        <div class="summary-card">
+                                            <h4>Toplam Kazanç</h4>
+                                            <div class="summary-value" id="totalReturn">$0.00</div>
+                                        </div>
+                                        <div class="summary-card">
+                                            <h4>Kazanç %</h4>
+                                            <div class="summary-value" id="returnPercent">0.00%</div>
+                                        </div>
+                                    </div>
+                                    <div class="portfolio-positions" id="portfolioPositions">
+                                        <!-- Dynamic positions will be added here -->
+                                    </div>
+                                    <div class="portfolio-actions-buttons">
+                                        <button class="trade-btn buy-btn" id="buyStockBtn">
+                                            <i class="fas fa-arrow-up"></i> Al
+                                        </button>
+                                        <button class="trade-btn sell-btn" id="sellStockBtn">
+                                            <i class="fas fa-arrow-down"></i> Sat
+                                        </button>
+                                        <button class="risk-btn" id="viewRiskBtn">
+                                            <i class="fas fa-shield-alt"></i> Risk Analizi
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
                 </div>
             </div>
         </header>
@@ -137,13 +190,12 @@
                     </div>
                 </div>
                 
-                <!-- Market News -->
-                <div class="news-section">
-                    <div class="panel-header">
-                        <h2><i class="fas fa-newspaper"></i> Piyasa Haberleri</h2>
-                    </div>
-                    <div class="news-container" id="newsContainer">
-                        <!-- Dynamic news items will be added here -->
+                
+                <!-- Last Update Section -->
+                <div class="last-update-section">
+                    <div class="last-update-info">
+                        <i class="fas fa-sync-alt"></i>
+                        <span id="lastUpdate">Bağlanıyor...</span>
                     </div>
                 </div>
             </aside>
@@ -172,8 +224,104 @@
                     </div>
                 </div>
                 
+                <!-- Advanced Chart Interface -->
                 <div class="chart-container">
-                    <canvas id="stockChart"></canvas>
+                    <div class="chart-header">
+                        <div class="chart-controls">
+                            <div class="timeframe-selector">
+                                <button class="timeframe-btn active" data-timeframe="1D">1D</button>
+                                <button class="timeframe-btn" data-timeframe="1W">1W</button>
+                                <button class="timeframe-btn" data-timeframe="1M">1M</button>
+                                <button class="timeframe-btn" data-timeframe="3M">3M</button>
+                                <button class="timeframe-btn" data-timeframe="1Y">1Y</button>
+                                <button class="timeframe-btn" data-timeframe="ALL">ALL</button>
+                            </div>
+                            <div class="chart-type-selector">
+                                <button class="chart-type-btn active" data-type="candlestick">
+                                    <i class="fas fa-chart-line"></i> Mum
+                                </button>
+                                <button class="chart-type-btn" data-type="line">
+                                    <i class="fas fa-chart-area"></i> Çizgi
+                                </button>
+                                <button class="chart-type-btn" data-type="area">
+                                    <i class="fas fa-chart-area"></i> Alan
+                                </button>
+                            </div>
+                            <div class="chart-tools">
+                                <button class="tool-btn" id="zoomInBtn">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
+                                <button class="tool-btn" id="zoomOutBtn">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                                <button class="tool-btn" id="resetZoomBtn">
+                                    <i class="fas fa-expand-arrows-alt"></i>
+                                </button>
+                                <button class="tool-btn" id="fullscreenBtn">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-indicators">
+                            <select class="indicator-selector" id="indicatorSelector">
+                                <option value="">Gösterge Seç</option>
+                                <option value="sma">SMA</option>
+                                <option value="ema">EMA</option>
+                                <option value="bollinger">Bollinger Bands</option>
+                                <option value="rsi">RSI</option>
+                                <option value="macd">MACD</option>
+                                <option value="volume">Volume</option>
+                                <option value="fibonacci">Fibonacci</option>
+                                <option value="ichimoku">Ichimoku</option>
+                            </select>
+                            <button class="add-indicator-btn" id="addIndicatorBtn">
+                                <i class="fas fa-plus"></i> Ekle
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-main">
+                        <div class="chart-wrapper">
+                            <canvas id="stockChart"></canvas>
+                            <div class="chart-overlay" id="chartOverlay">
+                                <div class="crosshair" id="crosshair"></div>
+                                <div class="price-line" id="priceLine"></div>
+                            </div>
+                        </div>
+                        <div class="chart-sidebar">
+                            <div class="volume-chart">
+                                <canvas id="volumeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-footer">
+                        <div class="chart-info">
+                            <div class="info-item">
+                                <span class="info-label">Açılış:</span>
+                                <span class="info-value" id="chartOpen">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Yüksek:</span>
+                                <span class="info-value" id="chartHigh">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Düşük:</span>
+                                <span class="info-value" id="chartLow">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Kapanış:</span>
+                                <span class="info-value" id="chartClose">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Hacim:</span>
+                                <span class="info-value" id="chartVolume">-</span>
+                            </div>
+                        </div>
+                        <div class="chart-legend" id="chartLegend">
+                            <!-- Dynamic legend items will be added here -->
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -183,31 +331,125 @@
                 <div class="analysis-section">
                     <div class="panel-header">
                         <h2><i class="fas fa-chart-bar"></i> Teknik Analiz</h2>
+                        <div class="analysis-tabs">
+                            <button class="tab-btn active" data-tab="basic">Temel</button>
+                            <button class="tab-btn" data-tab="advanced">Gelişmiş</button>
+                            <button class="tab-btn" data-tab="fibonacci">Fibonacci</button>
+                        </div>
                     </div>
-                    <div class="indicators-container" id="indicatorsContainer">
-                        <!-- Dynamic indicators will be added here -->
+                    
+                    <!-- Basic Indicators -->
+                    <div class="tab-content active" id="basicIndicators">
+                        <div class="indicators-container" id="indicatorsContainer">
+                            <!-- Dynamic indicators will be added here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced Indicators -->
+                    <div class="tab-content" id="advancedIndicators">
+                        <div class="advanced-indicators-grid">
+                            <div class="indicator-card">
+                                <h4>EMA</h4>
+                                <div class="indicator-values">
+                                    <span class="indicator-label">EMA 12:</span>
+                                    <span class="indicator-value" id="ema12Value">-</span>
+                                </div>
+                                <div class="indicator-values">
+                                    <span class="indicator-label">EMA 26:</span>
+                                    <span class="indicator-value" id="ema26Value">-</span>
+                                </div>
+                            </div>
+                            
+                            <div class="indicator-card">
+                                <h4>Ichimoku</h4>
+                                <div class="indicator-values">
+                                    <span class="indicator-label">Tenkan:</span>
+                                    <span class="indicator-value" id="tenkanValue">-</span>
+                                </div>
+                                <div class="indicator-values">
+                                    <span class="indicator-label">Kijun:</span>
+                                    <span class="indicator-value" id="kijunValue">-</span>
+                                </div>
+                                <div class="indicator-values">
+                                    <span class="indicator-label">Senkou A:</span>
+                                    <span class="indicator-value" id="senkouAValue">-</span>
+                                </div>
+                            </div>
+                            
+                            <div class="indicator-card">
+                                <h4>Momentum</h4>
+                                <div class="indicator-values">
+                                    <span class="indicator-label">Williams %R:</span>
+                                    <span class="indicator-value" id="williamsValue">-</span>
+                                </div>
+                                <div class="indicator-values">
+                                    <span class="indicator-label">CCI:</span>
+                                    <span class="indicator-value" id="cciValue">-</span>
+                                </div>
+                                <div class="indicator-values">
+                                    <span class="indicator-label">ADX:</span>
+                                    <span class="indicator-value" id="adxValue">-</span>
+                                </div>
+                            </div>
+                            
+                            <div class="indicator-card">
+                                <h4>Volatilite</h4>
+                                <div class="indicator-values">
+                                    <span class="indicator-label">ATR:</span>
+                                    <span class="indicator-value" id="atrValue">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fibonacci Levels -->
+                    <div class="tab-content" id="fibonacciIndicators">
+                        <div class="fibonacci-container">
+                            <h4>Fibonacci Retracement Levels</h4>
+                            <div class="fibonacci-levels">
+                                <div class="fib-level">
+                                    <span class="level-label">78.6%</span>
+                                    <span class="level-value" id="fib78Value">-</span>
+                                </div>
+                                <div class="fib-level">
+                                    <span class="level-label">61.8%</span>
+                                    <span class="level-value" id="fib61Value">-</span>
+                                </div>
+                                <div class="fib-level">
+                                    <span class="level-label">50.0%</span>
+                                    <span class="level-value" id="fib50Value">-</span>
+                                </div>
+                                <div class="fib-level">
+                                    <span class="level-label">38.2%</span>
+                                    <span class="level-value" id="fib38Value">-</span>
+                                </div>
+                                <div class="fib-level">
+                                    <span class="level-label">23.6%</span>
+                                    <span class="level-value" id="fib23Value">-</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="recommendation-section" id="recommendationSection" style="display: none;">
-                        <div class="panel-header">
-                            <h3>TradingView Önerisi</h3>
+                        <div class="recommendation-card">
+                            <div class="recommendation-header">
+                                <h3>AI Sinyali</h3>
+                                <div class="confidence-meter">
+                                    <span class="confidence-label">Güven:</span>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" id="confidenceFill"></div>
+                                    </div>
+                                    <span class="confidence-value" id="confidenceValue">50%</span>
+                                </div>
+                            </div>
+                            <div class="recommendation-value" id="recommendationValue">BEKLE</div>
                         </div>
-                        <div class="recommendation-value" id="recommendationValue">BEKLE</div>
                     </div>
                 </div>
 
-                <!-- Alarm System -->
-                <div class="alarm-section">
-                    <div class="panel-header">
-                        <h2><i class="fas fa-bell"></i> Alarmlar</h2>
-                        <button class="add-alarm-btn" id="addAlarmBtn">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                    <div class="alarm-container" id="alarmContainer">
-                        <!-- Dynamic alarms will be added here -->
-                    </div>
-                </div>
+
+
 
                 <!-- Stock Screener -->
                 <div class="screener-section">
@@ -255,6 +497,110 @@
         </main>
     </div>
 
+    <!-- Portfolio Creation Modal -->
+    <div class="modal" id="createPortfolioModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Yeni Portföy Oluştur</h3>
+                <button class="close-btn" id="closeCreatePortfolioBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="portfolioName">Portföy Adı:</label>
+                    <input type="text" id="portfolioName" placeholder="Örn: Ana Portföy">
+                </div>
+                <div class="form-group">
+                    <label for="initialCapital">Başlangıç Sermayesi:</label>
+                    <input type="number" id="initialCapital" placeholder="10000" min="1000" step="100">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelCreatePortfolio">İptal</button>
+                <button class="btn btn-primary" id="confirmCreatePortfolio">Oluştur</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trade Modal -->
+    <div class="modal" id="tradeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="tradeModalTitle">Hisse Al</h3>
+                <button class="close-btn" id="closeTradeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="tradeSymbol">Hisse Kodu:</label>
+                    <input type="text" id="tradeSymbol" placeholder="Örn: AAPL">
+                </div>
+                <div class="form-group">
+                    <label for="tradeQuantity">Miktar:</label>
+                    <input type="number" id="tradeQuantity" placeholder="10" min="1" step="1">
+                </div>
+                <div class="form-group">
+                    <label for="tradePrice">Fiyat:</label>
+                    <input type="number" id="tradePrice" placeholder="150.00" min="0.01" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="tradeCommission">Komisyon:</label>
+                    <input type="number" id="tradeCommission" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="trade-summary">
+                    <div class="summary-row">
+                        <span>Toplam Tutar:</span>
+                        <span id="tradeTotal">$0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelTrade">İptal</button>
+                <button class="btn btn-primary" id="confirmTrade">Onayla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Analysis Modal -->
+    <div class="modal" id="riskAnalysisModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Risk Analizi</h3>
+                <button class="close-btn" id="closeRiskModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="risk-metrics">
+                    <div class="risk-card">
+                        <h4>Volatilite</h4>
+                        <div class="risk-value" id="riskVolatility">-</div>
+                        <div class="risk-description">Portföy değişkenliği</div>
+                    </div>
+                    <div class="risk-card">
+                        <h4>Sharpe Oranı</h4>
+                        <div class="risk-value" id="riskSharpe">-</div>
+                        <div class="risk-description">Risk-getiri oranı</div>
+                    </div>
+                    <div class="risk-card">
+                        <h4>Max Drawdown</h4>
+                        <div class="risk-value" id="riskDrawdown">-</div>
+                        <div class="risk-description">Maksimum düşüş</div>
+                    </div>
+                    <div class="risk-card">
+                        <h4>Beta</h4>
+                        <div class="risk-value" id="riskBeta">-</div>
+                        <div class="risk-description">Piyasa korelasyonu</div>
+                    </div>
+                    <div class="risk-card">
+                        <h4>Alpha</h4>
+                        <div class="risk-value" id="riskAlpha">-</div>
+                        <div class="risk-description">Aktif getiri</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeRiskAnalysis">Kapat</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Stock Modal -->
     <div class="modal" id="addStockModal">
         <div class="modal-content">
@@ -272,47 +618,78 @@
     </div>
 
 
-    <!-- Add Alarm Modal -->
-    <div class="modal" id="addAlarmModal">
+    <!-- Create Alert Modal -->
+    <div class="modal" id="createAlertModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Alarm Ekle</h3>
-                <button class="close-btn" id="closeAlarmModalBtn">&times;</button>
+                <h3>Yeni Bildirim Oluştur</h3>
+                <button class="close-btn" id="closeCreateAlertBtn">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="alarm-form">
+                <div class="alert-form">
                     <div class="form-group">
-                        <label>Hisse:</label>
-                        <span id="alarmSymbol">-</span>
+                        <label for="alertSymbol">Hisse Kodu:</label>
+                        <input type="text" id="alertSymbol" placeholder="Örn: AAPL" value="">
                     </div>
                     <div class="form-group">
-                        <label>Alarm Türü:</label>
-                        <select id="alarmType">
-                            <option value="price">Fiyat</option>
-                            <option value="rsi">RSI</option>
-                            <option value="macd">MACD</option>
-                            <option value="volume">Hacim</option>
+                        <label for="alertType">Bildirim Türü:</label>
+                        <select id="alertType">
+                            <option value="price_above">Fiyat Üstü</option>
+                            <option value="price_below">Fiyat Altı</option>
+                            <option value="volume_spike">Hacim Patlaması</option>
+                            <option value="technical_signal">Teknik Sinyal</option>
+                            <option value="news_alert">Haber Bildirimi</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="conditionGroup">
+                        <label for="alertCondition">Koşul:</label>
+                        <select id="alertCondition">
+                            <option value=">">Büyüktür (>)</option>
+                            <option value="<">Küçüktür (<)</option>
+                            <option value=">=">Büyük Eşit (>=)</option>
+                            <option value="<=">Küçük Eşit (<=)</option>
+                            <option value="=">Eşittir (=)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="valueGroup">
+                        <label for="alertValue">Hedef Değer:</label>
+                        <input type="number" id="alertValue" placeholder="Hedef değer" step="0.01">
+                    </div>
+                    <div class="form-group" id="technicalGroup" style="display: none;">
+                        <label for="technicalCondition">Teknik Koşul:</label>
+                        <select id="technicalCondition">
+                            <option value="rsi_oversold">RSI Aşırı Satım (<30)</option>
+                            <option value="rsi_overbought">RSI Aşırı Alım (>70)</option>
+                            <option value="macd_bullish">MACD Boğa Sinyali</option>
+                            <option value="macd_bearish">MACD Ayı Sinyali</option>
+                            <option value="bollinger_upper">Bollinger Üst Band</option>
+                            <option value="bollinger_lower">Bollinger Alt Band</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Koşul:</label>
-                        <select id="alarmCondition">
-                            <option value="above">Üzerinde</option>
-                            <option value="below">Altında</option>
-                            <option value="crosses">Geçer</option>
-                        </select>
+                        <label for="alertMessage">Özel Mesaj (İsteğe bağlı):</label>
+                        <input type="text" id="alertMessage" placeholder="Özel bildirim mesajı">
                     </div>
                     <div class="form-group">
-                        <label>Değer:</label>
-                        <input type="number" id="alarmValue" step="0.01" placeholder="Örn: 150.50">
+                        <label for="alertCooldown">Bekleme Süresi (dakika):</label>
+                        <input type="number" id="alertCooldown" value="5" min="1" max="60">
                     </div>
-                    <button class="alarm-submit-btn" id="alarmSubmitBtn">Alarm Ekle</button>
+                    <div class="form-group">
+                        <label for="alertMaxTriggers">Maksimum Tetiklenme:</label>
+                        <input type="number" id="alertMaxTriggers" value="1" min="0" max="100">
+                        <small>0 = sınırsız</small>
+                    </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelCreateAlert">İptal</button>
+                <button class="btn btn-primary" id="confirmCreateAlert">Bildirim Oluştur</button>
             </div>
         </div>
     </div>
 
 
+    <script src="js/advanced-chart.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>
