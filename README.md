@@ -33,15 +33,51 @@
 * Node.js 16.0.0+
 * npm 8.0.0+
 * Modern web tarayıcısı
+* Docker (opsiyonel)
 
 ### ⚡ Kurulum
+
+#### Yöntem 1: NPM ile Kurulum
 
 ```bash
 # 1. Bağımlılıkları yükleyin
 npm install
 
-# 2. Sunucuyu başlatın
+# 2. Environment variables ayarlayın
+cp .env.example .env
+# .env dosyasını düzenleyin ve API key'lerinizi ekleyin
+
+# 3. Sunucuyu başlatın
 npm start
+
+# 4. Tarayıcıdan erişin
+http://localhost:3000
+```
+
+#### Yöntem 2: Docker ile Kurulum
+
+```bash
+# 1. Docker image'ı build edin
+docker build -t tradepro-alpha .
+
+# 2. Container'ı çalıştırın
+docker run -p 3000:3000 \
+  -e JWT_SECRET=your_secret_key \
+  -e YAHOO_FINANCE_API_KEY=your_api_key \
+  tradepro-alpha
+
+# 3. Tarayıcıdan erişin
+http://localhost:3000
+```
+
+#### Yöntem 3: Docker Compose ile Kurulum
+
+```bash
+# 1. Environment variables ayarlayın
+cp .env.example .env
+
+# 2. Docker Compose ile başlatın
+docker-compose up -d
 
 # 3. Tarayıcıdan erişin
 http://localhost:3000
@@ -227,21 +263,49 @@ http://localhost:3000
 
 ### API Endpoints
 
+#### 📊 Stock Data
 * `GET /api/stocks` → Tüm hisse verileri
-* `GET /api/search?q=query` → Canlı arama
-* `GET /api/chart/:symbol` → Grafik verisi
+* `GET /api/stocks/:symbol` → Belirli hisse verisi
+* `GET /api/stocks/search/:query` → Hisse arama
+* `GET /api/stocks/technical/:symbol` → Teknik analiz göstergeleri
+
+#### 📰 News & Information
 * `GET /api/news/companies` → Şirket haberleri
 * `GET /api/news/market` → Piyasa haberleri
 * `GET /api/news/tradingview` → Finansal haberler (RSS)
-* `GET /api/screener` → Hisse screener verileri
+* `GET /api/news/search` → Haber arama
+
+#### 🔔 Alerts & Notifications
 * `GET /api/alerts` → Kullanıcı bildirimleri
 * `POST /api/alerts` → Yeni bildirim oluşturma
+* `PUT /api/alerts/:id` → Bildirim güncelleme
+* `DELETE /api/alerts/:id` → Bildirim silme
+
+#### 💼 Portfolio Management
 * `GET /api/portfolios` → Portföy listesi
 * `POST /api/portfolios` → Yeni portföy oluşturma
+* `GET /api/portfolios/:id` → Portföy detayları
+* `POST /api/portfolios/:id/transactions` → İşlem ekleme
+
+#### 👥 Social Trading
 * `GET /api/social/traders` → Trader listesi
 * `GET /api/social/leaderboard` → Liderlik tablosu
+* `GET /api/social/feed` → Sosyal trading akışı
+
+#### 🔧 System & Monitoring
 * `GET /api/health` → Sistem durumu
-* `WebSocket ws://localhost:3000` → Canlı veri
+* `GET /api/health/ping` → Basit ping testi
+* `GET /api/monitoring/dashboard` → Monitoring dashboard
+* `GET /api/monitoring/metrics` → Detaylı sistem metrikleri
+* `GET /api/monitoring/websocket` → WebSocket istatistikleri
+* `GET /api/monitoring/redis` → Redis durumu
+* `GET /api/monitoring/cache` → Cache istatistikleri
+* `POST /api/monitoring/performance-test` → Performans testi
+
+#### 🔌 Real-time Data
+* `WebSocket ws://localhost:3000/ws` → Canlı veri akışı
+* `WebSocket subscribe` → Hisse aboneliği
+* `WebSocket unsubscribe` → Abonelik iptali
 
 ---
 
@@ -282,6 +346,32 @@ curl http://localhost:3000/api/news/companies
 ---
 
 ## 🆕 Son Güncellemeler
+
+### v3.2.0 - Advanced Features & Enterprise Ready
+
+* ✅ **Redis Entegrasyonu**: Dağıtık cache ve pub/sub sistemi
+* ✅ **Advanced Technical Analysis**: ATR, Williams %R, Stochastic, CCI, OBV
+* ✅ **Client-Specific WebSocket**: Subscription-based real-time streaming
+* ✅ **Progressive Web App**: Offline support, installable, push notifications
+* ✅ **Monitoring Dashboard**: Comprehensive system monitoring ve metrics
+* ✅ **Enterprise Architecture**: Microservices-ready, scalable design
+* ✅ **Background Sync**: Offline data synchronization
+* ✅ **Service Worker**: Advanced caching strategies
+* ✅ **Performance Optimization**: Memory management, connection pooling
+
+### v3.1.0 - Güvenlik & Altyapı İyileştirmeleri
+
+* ✅ **Güvenlik Paketleri**: Helmet, Rate Limiting, CORS koruması
+* ✅ **Environment Variables**: Güvenli konfigürasyon yönetimi
+* ✅ **Modüler Kod Yapısı**: Routes, Services, Utils, Middleware ayrımı
+* ✅ **Gelişmiş Logging**: Winston ile profesyonel log yönetimi
+* ✅ **Error Handling**: Kapsamlı hata yakalama ve yönetimi
+* ✅ **Cache Sistemi**: Gelişmiş cache mekanizması ve invalidation
+* ✅ **API Service**: Yeniden kullanılabilir API wrapper'ları
+* ✅ **Test Altyapısı**: Jest ile unit ve integration testleri
+* ✅ **Docker Desteği**: Multi-stage build ve production-ready container
+* ✅ **Health Checks**: Sistem sağlık kontrolü ve monitoring
+* ✅ **Performance**: Compression, request logging, memory management
 
 ### v3.0.0 - Premium UI & Yeni Özellikler
 
@@ -335,15 +425,53 @@ curl http://localhost:3000/api/news/companies
 ### 🛠️ Geliştirme Kurulumu
 
 ```bash
-# Repository’yi klonlayın
+# Repository'yi klonlayın
 git clone https://github.com/byiyuel/TradePro-Alpha.git
 cd TradePro-Alpha
 
 # Bağımlılıkları yükleyin
 npm install
 
+# Environment variables ayarlayın
+cp .env.example .env
+
 # Development modunda başlatın
-npm start
+npm run dev
+
+# Testleri çalıştırın
+npm test
+
+# Test coverage raporu
+npm run test:coverage
+```
+
+### 🧪 Test
+
+```bash
+# Tüm testleri çalıştır
+npm test
+
+# Watch mode'da testleri çalıştır
+npm run test:watch
+
+# Coverage raporu oluştur
+npm run test:coverage
+
+# Belirli bir test dosyasını çalıştır
+npm test -- tests/health.test.js
+```
+
+### 🐳 Docker Geliştirme
+
+```bash
+# Development container'ı başlat
+docker-compose --profile dev up -d
+
+# Container loglarını takip et
+docker-compose logs -f tradepro-dev
+
+# Container'a bağlan
+docker-compose exec tradepro-dev sh
 ```
 
 ---

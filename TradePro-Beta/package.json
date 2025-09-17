@@ -1,22 +1,25 @@
 {
-  "name": "tradepro-alpha",
-  "version": "2.0.0",
-  "description": "Advanced Trading Platform with Real-time Data",
-  "main": "src/backend/server.js",
+  "name": "tradepro-beta",
+  "version": "3.2.0",
+  "description": "Enterprise-Grade Trading Platform with Advanced Features",
+  "main": "src/backend/server-new.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/TradePro-Alpha.git"
+    "url": "https://github.com/yourusername/TradePro-Beta.git"
   },
-  "homepage": "https://github.com/yourusername/TradePro-Alpha#readme",
+  "homepage": "https://github.com/yourusername/TradePro-Beta#readme",
   "bugs": {
-    "url": "https://github.com/yourusername/TradePro-Alpha/issues"
+    "url": "https://github.com/yourusername/TradePro-Beta/issues"
   },
   "scripts": {
-    "start": "node src/backend/server.js",
-    "dev": "nodemon src/backend/server.js",
+    "start": "node src/backend/server-new.js",
+    "dev": "nodemon src/backend/server-new.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "build": "npm install --production",
+    "render:build": "npm install",
+    "render:start": "node src/backend/server-new.js"
   },
   "keywords": [
     "trading",
@@ -25,7 +28,15 @@
     "nasdaq",
     "real-time",
     "chart",
-    "technical-analysis"
+    "technical-analysis",
+    "redis",
+    "websocket",
+    "pwa",
+    "enterprise",
+    "monitoring",
+    "docker",
+    "microservices",
+    "render"
   ],
   "author": "TradePro Team",
   "license": "MIT",
@@ -51,7 +62,7 @@
     "supertest": "^6.3.3"
   },
   "engines": {
-    "node": ">=16.0.0",
+    "node": ">=18.0.0",
     "npm": ">=8.0.0"
   },
   "type": "commonjs"

@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  tradepro-beta:
+    build: .
+    ports:
+      - "10000:10000"
+    environment:
+      - NODE_ENV=production
+      - PORT=10000
+      - JWT_SECRET=${JWT_SECRET:-tradepro_beta_secret_key_2024}
+      - YAHOO_FINANCE_API_KEY=${YAHOO_FINANCE_API_KEY}
+      - NEWS_API_KEY=${NEWS_API_KEY}
+      - REDIS_URL=${REDIS_URL}
+      - CACHE_DURATION_MINUTES=30
+      - RATE_LIMIT_MAX_REQUESTS=100
+      - HELMET_CSP_ENABLED=true
+      - HELMET_HSTS_ENABLED=true
+      - LOG_LEVEL=info
+      - WS_MAX_CONNECTIONS=50
+    volumes:
+      - /tmp/logs:/tmp/logs
+      - /tmp/database:/tmp/database
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:10000/api/health/ping', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Development service
+  tradepro-beta-dev:
+    build: .
+    ports:
+      - "3001:10000"
+    environment:
+      - NODE_ENV=development
+      - PORT=10000
+      - JWT_SECRET=dev_secret_key
+      - LOG_LEVEL=debug
+      - CACHE_DURATION_MINUTES=5
+      - RATE_LIMIT_MAX_REQUESTS=1000
+      - WS_MAX_CONNECTIONS=100
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /tmp/logs:/tmp/logs
+      - /tmp/database:/tmp/database
+    command: npm run dev
+    profiles:
+      - dev
+
+  # Redis service (local development)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    profiles:
+      - dev
+
+volumes:
+  redis_data:
